@@ -1,5 +1,5 @@
 export enum MessageTypeComputerToServer {
-  INVENTORY_UPDATE = 'INVENTORY_UPDATE',
+  STORAGE_SYSTEM_UPDATE = 'STORAGE_SYSTEM_UPDATE',
 }
 
 export enum MessageTypeServerToComputer {
@@ -8,17 +8,27 @@ export enum MessageTypeServerToComputer {
   INFO = 'INFO',
 }
 
+/** Represents a whole storage system */
+export interface StorageSystem {
+  name: string;
+  storages: StorageInfo[];
+}
+
+/** Represents all data in a single storage inventory (chest / drawer network / item vault) */
+
 export interface StorageInfo {
   name: string;
   metaData: StorageMetaData;
 
-  itemStacks: ItemStack[];
+  itemStacks: ItemStack[] | null;
 }
 
+/** Extra data about storage */
 export interface StorageMetaData {
   size: number;
 }
 
+/** Item stack representing items in a single slot of a storage inventory */
 export interface ItemStack {
   slot: number;
 
@@ -29,6 +39,7 @@ export interface ItemStack {
   itemDetails: ItemDetails | null;
 }
 
+/** Extra details for item */
 export interface ItemDetails {
   displayName: string;
   lore: string[] | null;
@@ -39,16 +50,20 @@ export interface ItemDetails {
   tags: string[];
 }
 
+/** Enchantment on item */
 export interface Enchantment {
   displayName: string;
   level: number;
   name: string;
 }
 
-export interface InventoryUpdate {
-  storages: StorageInfo[];
+/** Represents a storage system update */
+export interface StorageSystemUpdate {
+  storageSystem: StorageSystem;
+  updateTime: number;
 }
 
+/** Represents a single item move operation */
 export interface ItemMove {
   /** storage name */
   from: string;
@@ -61,6 +76,7 @@ export interface ItemMove {
   quantity: number | null;
 }
 
+/** Represents multiple item move operations */
 export interface ItemMoves {
   moves: ItemMove[];
 }
@@ -76,8 +92,8 @@ export interface MessageS2CStructure {
 }
 
 export interface MessageC2SInventoryUpdate extends MessageC2SStructure {
-  type: MessageTypeComputerToServer.INVENTORY_UPDATE;
-  data: InventoryUpdate;
+  type: MessageTypeComputerToServer.STORAGE_SYSTEM_UPDATE;
+  data: StorageSystemUpdate;
 }
 
 export interface MessageS2CFetchUpdate extends MessageS2CStructure {
