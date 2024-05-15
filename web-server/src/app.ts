@@ -23,6 +23,8 @@ function isMessageC2S(message: MessageC2SStructure): message is MessageC2S {
   return Object.values(MessageTypeComputerToServer).includes(message.type);
 }
 
+app.use(express.json());
+
 app.ws('/ws', (ws, req) => {
   console.log('Client connected');
 
@@ -101,6 +103,8 @@ app.get('/fetchUpdate', (req: Request, res: Response) => {
 
 app.post('/moveItems', (req: Request, res: Response) => {
   const itemMoves: ItemMoves = req.body;
+
+  console.log(itemMoves);
 
   appWs.getWss().clients.forEach((client) => {
     const message: MessageS2CMoveItems = {

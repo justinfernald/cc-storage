@@ -56,19 +56,58 @@ local function gatherInventoryData()
 end
 
 -- Send JSON data over WebSocket
-local function sendInventoryUpdate()
-  local wsUrl = "ws://localhost:3000/ws"
-  local ws, err = http.websocket(wsUrl)
+local function sendInventoryUpdate(ws)
+  local jsonString = gatherInventoryData()
+  ws.send(jsonString)
+end
 
+-- Move items between inventories
+local function moveItems(moves)
+  for _, move in ipairs(moves) do
+    local fromInventory = peripheral.wrap(move.from)
+    local toInventory = peripheral.wrap(move.to)
+    if fromInventory and toInventory then
+      local itemDetail = fromInventory.getItemDetail(move.fromSlot)
+      if itemDetail then
+        local toSlot = move.toSlot or toInventory.size() + 1
+        fromInventory.pushItems(move.to, move.fromSlot, itemDetail.count, toSlot)
+      end
+    end
+  end
+end
+
+-- WebSocket URL
+local wsUrl = "ws://localhost:3000/ws" -- Replace with your WebSocket URL
+
+-- Function to handle incoming WebSocket messages
+local function handleWebSocketMessage(ws, message)
+  print("Received message: " .. message)
+
+  local parsedMessage = textutils.unserializeJSON(message)
+  if parsedMessage.type == "FETCH_UPDATE" then
+    sendInventoryUpdate(ws)
+  elseif parsedMessage.type == "MOVE_ITEMS" then
+    moveItems(parsedMessage.data.moves)
+  end
+end
+
+-- Establish WebSocket connection and listen for messages
+local function listenWebSocket()
+  local ws, err = http.websocket(wsUrl)
   if not ws then
     print("Failed to connect to WebSocket: " .. err)
     return
   end
 
-  local jsonString = gatherInventoryData()
-  ws.send(jsonString)
-  ws.close()
+  while true do
+    local event, url, message = os.pullEvent("websocket_message")
+    if url == wsUrl then
+      handleWebSocketMessage(ws, message)
+    end
+
+    sleep(1)
+  end
 end
 
--- Example usage: send inventory update
-sendInventoryUpdate()
+-- Start listening for WebSocket messages
+listenWebSocket()
