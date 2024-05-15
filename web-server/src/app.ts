@@ -3,7 +3,7 @@ import * as fs from 'fs/promises';
 import express, { Request, Response } from 'express';
 import expressWs from 'express-ws';
 import {
-  InventoryUpdate,
+  StorageSystemUpdate,
   ItemMoves,
   MessageC2S,
   MessageC2SStructure,
@@ -12,6 +12,7 @@ import {
   MessageS2CMoveItems,
   MessageTypeComputerToServer,
   MessageTypeServerToComputer,
+  StorageSystem,
 } from './interfaces/types';
 import { sleep } from './utils';
 
@@ -44,7 +45,7 @@ app.ws('/ws', (ws, req) => {
     console.log('Received message:', msg.toString());
 
     try {
-      const message: MessageC2SStructure = JSON.parse(msg.toString());
+      const message: MessageC2S = JSON.parse(msg.toString());
 
       if (!isMessageC2S(message)) {
         ws.send(
@@ -56,10 +57,38 @@ app.ws('/ws', (ws, req) => {
         );
       }
 
-      if (message.type === MessageTypeComputerToServer.INVENTORY_UPDATE) {
-        const data = message.data as InventoryUpdate;
+      if (message.type === MessageTypeComputerToServer.PING) {
+        ws.send(
+          JSON.stringify({
+            type: MessageTypeServerToComputer.PONG,
+            data: null,
+          }),
+        );
+      }
 
-        await fs.writeFile('storage-data.json', JSON.stringify(data), 'utf-8');
+      if (message.type === MessageTypeComputerToServer.CONNECTION) {
+        ws.send(
+          JSON.stringify({
+            type: MessageTypeServerToComputer.INFO,
+            code: 200,
+            data: 'Connection established',
+          } satisfies MessageS2CInfo),
+        );
+      }
+
+      if (message.type === MessageTypeComputerToServer.STORAGE_SYSTEM_UPDATE) {
+        const data = message.data as StorageSystemUpdate;
+
+        const systemName = data.storageSystem.name;
+
+        // keep only alphanumeric characters
+        const hashedSystemName = systemName.replace(/[^a-zA-Z0-9]/g, '');
+
+        await fs.writeFile(
+          `storage-systems-data/${hashedSystemName}.json`,
+          JSON.stringify(data),
+          'utf-8',
+        );
 
         ws.send(
           JSON.stringify({
@@ -93,6 +122,30 @@ app.get('/connectionCount', (req: Request, res: Response) => {
 app.get('/storageData', async (req: Request, res: Response) => {
   const data = await fs.readFile('storage-data.json', 'utf-8');
   res.json(JSON.parse(data));
+});
+
+app.get('/storageSystems', async (req: Request, res: Response) => {
+  const files = await fs.readdir('storage-systems-data');
+  const data: StorageSystem[] = await Promise.all(
+    files.map(async (file) => {
+      const content = await fs.readFile(`storage-systems-data/${file}`, 'utf-8');
+      return JSON.parse(content);
+    }),
+  );
+
+  res.json(data);
+});
+
+app.get('/storageSystems/:name', async (req: Request, res: Response) => {
+  const name = req.params.name;
+  const hashedName = name.replace(/[^a-zA-Z0-9]/g, '');
+
+  try {
+    const data = await fs.readFile(`storage-systems-data/${hashedName}.json`, 'utf-8');
+    res.json(JSON.parse(data));
+  } catch (e) {
+    res.status(404).json({ message: 'Storage system not found' });
+  }
 });
 
 function fetchUpdate() {

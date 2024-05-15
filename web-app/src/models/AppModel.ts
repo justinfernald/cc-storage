@@ -1,12 +1,12 @@
 import { makeAutoObservable } from 'mobx';
 import { apiUrl } from '../config';
-import { InventoryUpdate, ItemMoves } from '../interfaces/types';
+import { StorageSystem, ItemMoves } from '../interfaces/types';
 import { APIService } from './APIService';
 
 export class AppModel {
   apiService = new APIService(apiUrl);
 
-  storageData: InventoryUpdate | null = null;
+  storageSystems: Map<string, StorageSystem> | null = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -16,19 +16,27 @@ export class AppModel {
     await this.apiService.fetchUpdate();
 
     setTimeout(() => {
-      this.updateStorage();
+      this.updateStorageSystemCollection();
     }, 1_000);
   }
 
-  async updateStorage() {
-    this.storageData = await this.apiService.getStorageData();
+  async updateStorageSystemCollection() {
+    const systems = await this.apiService.getStorageSystemCollection();
+
+    if (!this.storageSystems) {
+      this.storageSystems = new Map();
+    }
+
+    for (const system of systems) {
+      this.storageSystems.set(system.name, system);
+    }
   }
 
   async moveItems(data: ItemMoves) {
     await this.apiService.moveItems(data);
 
     setTimeout(() => {
-      this.updateStorage();
+      this.updateStorageSystemCollection();
     }, 3_000);
   }
 }

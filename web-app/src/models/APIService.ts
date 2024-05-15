@@ -1,4 +1,4 @@
-import { InventoryUpdate, ItemMoves } from '../interfaces/types';
+import { StorageSystem, ItemMoves } from '../interfaces/types';
 
 export class APIService {
   constructor(public rootUrl: string) {}
@@ -9,9 +9,14 @@ export class APIService {
     return result.status === 200;
   }
 
-  async getStorageData(): Promise<InventoryUpdate> {
-    console.log('fetching storage data');
-    return await fetch(`${this.rootUrl}/storageData`).then((res) => res.json());
+  async getStorageSystemCollection(): Promise<StorageSystem[]> {
+    return await fetch(`${this.rootUrl}/storageSystems`).then((res) => res.json());
+  }
+
+  async getStorageSystem(name: string): Promise<StorageSystem[]> {
+    return await fetch(`${this.rootUrl}/storageSystems/${name}`).then((res) =>
+      res.json(),
+    );
   }
 
   async getConnectionCount(): Promise<number> {
