@@ -38,10 +38,10 @@ Content-Type: application/json
 {
   "moves": [
     {
-      "from": "storagedrawers:controller_slave_0",
-      "to": "minecraft:chest_1",
-      "fromSlot": 7,
-      "toSlot": 8
+      "from": "minecraft:chest_1",
+      "to": "storagedrawers:controller_slave_0",
+      "fromSlot": 4,
+      "toSlot": null
     }
   ]
 }

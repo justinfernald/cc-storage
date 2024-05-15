@@ -69,8 +69,13 @@ local function moveItems(moves)
     if fromInventory and toInventory then
       local itemDetail = fromInventory.getItemDetail(move.fromSlot)
       if itemDetail then
-        local toSlot = move.toSlot or toInventory.size() + 1
-        fromInventory.pushItems(move.to, move.fromSlot, itemDetail.count, toSlot)
+        local quantity = move.quantity or itemDetail.count
+        local toSlot = move.toSlot
+        if toSlot == nil then
+          fromInventory.pushItems(move.to, move.fromSlot, quantity)
+        else
+          fromInventory.pushItems(move.to, move.fromSlot, quantity, toSlot)
+        end
       end
     end
   end

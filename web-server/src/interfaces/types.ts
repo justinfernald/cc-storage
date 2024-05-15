@@ -57,6 +57,8 @@ export interface ItemMove {
 
   fromSlot: number;
   toSlot: number | null;
+
+  quantity: number | null;
 }
 
 export interface ItemMoves {
