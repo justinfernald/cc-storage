@@ -12,7 +12,7 @@ export interface StorageInfo {
   name: string;
   metaData: StorageMetaData;
 
-  itemStacks: ItemStack[] | null;
+  itemStacks: ItemStack[];
 }
 
 export interface StorageMetaData {

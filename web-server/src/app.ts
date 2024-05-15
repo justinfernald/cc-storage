@@ -13,6 +13,7 @@ import {
   MessageTypeComputerToServer,
   MessageTypeServerToComputer,
 } from './interfaces/types';
+import { sleep } from './utils';
 
 const appWs = expressWs(express());
 const app = appWs.app;
@@ -24,6 +25,13 @@ function isMessageC2S(message: MessageC2SStructure): message is MessageC2S {
 }
 
 app.use(express.json());
+
+// middleware to allow CORS
+app.use((_req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 app.ws('/ws', (ws, req) => {
   console.log('Client connected');
@@ -79,7 +87,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.get('/connectionCount', (req: Request, res: Response) => {
   // send back the number of connected clients
-  res.json({ connectedClients: appWs.getWss().clients.size });
+  res.json({ count: appWs.getWss().clients.size });
 });
 
 app.get('/storageData', async (req: Request, res: Response) => {
@@ -87,8 +95,7 @@ app.get('/storageData', async (req: Request, res: Response) => {
   res.json(JSON.parse(data));
 });
 
-app.get('/fetchUpdate', (req: Request, res: Response) => {
-  // send message to all connected clients
+function fetchUpdate() {
   appWs.getWss().clients.forEach((client) => {
     const message: MessageS2CFetchUpdate = {
       type: MessageTypeServerToComputer.FETCH_UPDATE,
@@ -97,15 +104,16 @@ app.get('/fetchUpdate', (req: Request, res: Response) => {
 
     client.send(JSON.stringify(message));
   });
+}
+
+app.get('/fetchUpdate', async (req: Request, res: Response) => {
+  // send message to all connected clients
+  await fetchUpdate();
 
   res.json({ message: 'Sent fetch update to all clients' });
 });
 
-app.post('/moveItems', (req: Request, res: Response) => {
-  const itemMoves: ItemMoves = req.body;
-
-  console.log(itemMoves);
-
+function moveItems(itemMoves: ItemMoves) {
   appWs.getWss().clients.forEach((client) => {
     const message: MessageS2CMoveItems = {
       type: MessageTypeServerToComputer.MOVE_ITEMS,
@@ -114,6 +122,14 @@ app.post('/moveItems', (req: Request, res: Response) => {
 
     client.send(JSON.stringify(message));
   });
+}
+
+app.post('/moveItems', async (req: Request, res: Response) => {
+  const itemMoves: ItemMoves = req.body;
+
+  await moveItems(itemMoves);
+  await sleep(2000);
+  await fetchUpdate();
 
   res.json({ message: 'Sent move items to all clients' });
 });
