@@ -3,10 +3,19 @@ import './App.css';
 
 import { Card } from './components/base';
 import { AppModel } from './models/AppModel';
-import { absolute, flexCenter, fullSize, padding } from './styles';
+import { absolute, flexCenter, flexCenterHorizontal, fullSize, padding } from './styles';
 import { ItemDetails, ItemStack, StorageInfo } from './interfaces/types';
-import { useState } from 'react';
-import { Button, Collapse, Dialog, DialogBody, DialogFooter } from '@blueprintjs/core';
+import { useEffect, useState } from 'react';
+import {
+  Button,
+  Collapse,
+  Dialog,
+  DialogBody,
+  DialogFooter,
+  InputGroup,
+  Panel,
+  PanelStack2,
+} from '@blueprintjs/core';
 
 const appModel = new AppModel();
 appModel.fetchUpdate();
@@ -27,16 +36,70 @@ export const App = observer(() => {
 
   return (
     <div css={[absolute(), fullSize]}>
-      <Card css={{}}>
-        <h1>Storages</h1>
-        <div>
-          {storages.map((storage) => (
-            <Storage key={storage.name} storage={storage} />
-          ))}
-        </div>
-      </Card>
+      <PanelManager />
     </div>
   );
+});
+
+interface SystemSelectionPanelInfo {}
+
+const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) => {
+  return (
+    <div css={[fullSize, flexCenterHorizontal, padding('md')]}>
+      <div css={[{ width: 'min(90%, 600px)' }]}>
+        <InputGroup />
+        <div>
+          {[{ name: 'Main Storage', storageCount: 10, itemCount: 100 }].map((system) => (
+            <div key={system.name}>{system.name}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+interface SystemPanelInfo {}
+
+const SystemPanel = observer((props: SystemPanelInfo) => {
+  return <div css={[fullSize]}></div>;
+});
+
+export const PanelManager = observer(() => {
+  const initialPanel: Panel<SystemSelectionPanelInfo | SystemPanelInfo> = {
+    props: {},
+    renderPanel: () => <SystemSelectionPanel />,
+    title: 'System Selection',
+  };
+
+  const newPanel: Panel<SystemSelectionPanelInfo | SystemPanelInfo> = {
+    props: {},
+    renderPanel: () => <SystemPanel />,
+    title: 'System',
+  };
+
+  const [currentPanelStack, setCurrentPanelStack] = useState<
+    Array<Panel<SystemSelectionPanelInfo>>
+  >([initialPanel]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentPanelStack((currentPanelStack) => {
+        return [...currentPanelStack, newPanel];
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  });
+
+  const popPanel = () => {
+    setCurrentPanelStack((currentPanelStack) => {
+      const newPanelStack = [...currentPanelStack];
+      newPanelStack.pop();
+      return newPanelStack;
+    });
+  };
+
+  return <PanelStack2 css={[fullSize]} stack={currentPanelStack} onClose={popPanel} />;
 });
 
 export interface StorageProps {
