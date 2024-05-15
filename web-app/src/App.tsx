@@ -5,7 +5,7 @@ import { Card } from './components/base';
 import { AppModel } from './models/AppModel';
 import { absolute, flexCenter, flexCenterHorizontal, fullSize, padding } from './styles';
 import { ItemDetails, ItemStack, StorageInfo } from './interfaces/types';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   Collapse,
@@ -21,7 +21,7 @@ const appModel = new AppModel();
 appModel.fetchUpdate();
 
 export const App = observer(() => {
-  if (!appModel.storageData) {
+  if (!appModel.storageSystems) {
     return (
       <div css={[absolute(), fullSize, flexCenter, padding('md')]}>
         <Card css={{}}>
@@ -31,8 +31,7 @@ export const App = observer(() => {
     );
   }
 
-  const { storageData } = appModel;
-  const { storages } = storageData;
+  const { storageSystems: storageSystems } = appModel;
 
   return (
     <div css={[absolute(), fullSize]}>
@@ -41,16 +40,49 @@ export const App = observer(() => {
   );
 });
 
-interface SystemSelectionPanelInfo {}
+interface PanelInfo {
+  title: string;
+  stack: Panel<PanelInfo>[];
+  onClose: () => void;
+  openPanel: (panel: Panel<PanelInfo>) => void;
+}
+
+interface SystemSelectionPanelInfo extends PanelInfo {}
 
 const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) => {
+  function createPanel(
+    title: string,
+    renderPanel: (panelProps: PanelInfo) => JSX.Element,
+  ): Panel<PanelInfo> {
+    return {
+      props: {} as any,
+      renderPanel: () =>
+        renderPanel({
+          title,
+          stack: props.stack,
+          onClose: props.onClose,
+          openPanel: props.openPanel,
+        }),
+      title,
+    };
+  }
+
+  const systemPanel = createPanel('System', (panelProps) => (
+    <SystemPanel {...panelProps} />
+  ));
+
   return (
     <div css={[fullSize, flexCenterHorizontal, padding('md')]}>
       <div css={[{ width: 'min(90%, 600px)' }]}>
         <InputGroup />
         <div>
           {[{ name: 'Main Storage', storageCount: 10, itemCount: 100 }].map((system) => (
-            <div key={system.name}>{system.name}</div>
+            <div key={system.name}>
+              <div>{system.name}</div>
+              <div>Storage Count: {system.storageCount}</div>
+              <div>Item Count: {system.itemCount}</div>
+              <Button onClick={() => props.openPanel(systemPanel)}>Open System</Button>
+            </div>
           ))}
         </div>
       </div>
@@ -58,44 +90,58 @@ const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) => {
   );
 });
 
-interface SystemPanelInfo {}
+interface SystemPanelInfo extends PanelInfo {}
 
 const SystemPanel = observer((props: SystemPanelInfo) => {
   return <div css={[fullSize]}></div>;
 });
 
 export const PanelManager = observer(() => {
-  const initialPanel: Panel<SystemSelectionPanelInfo | SystemPanelInfo> = {
-    props: {},
-    renderPanel: () => <SystemSelectionPanel />,
-    title: 'System Selection',
-  };
+  function createPanel(
+    title: string,
+    renderPanel: (panelProps: PanelInfo) => JSX.Element,
+  ): Panel<PanelInfo> {
+    return {
+      props: {} as any,
+      renderPanel: () =>
+        renderPanel({
+          title,
+          stack: currentPanelStack,
+          onClose: popPanel,
+          openPanel: pushPanel,
+        }),
+      title,
+    };
+  }
 
-  const newPanel: Panel<SystemSelectionPanelInfo | SystemPanelInfo> = {
-    props: {},
-    renderPanel: () => <SystemPanel />,
-    title: 'System',
-  };
+  const systemSelectionPanel = createPanel('System Selection', (panelProps) => (
+    <SystemSelectionPanel {...panelProps} />
+  ));
 
-  const [currentPanelStack, setCurrentPanelStack] = useState<
-    Array<Panel<SystemSelectionPanelInfo>>
-  >([initialPanel]);
+  const [currentPanelStack, setCurrentPanelStack] = useState<Panel<PanelInfo>[]>([
+    systemSelectionPanel,
+  ]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPanelStack((currentPanelStack) => {
-        return [...currentPanelStack, newPanel];
-      });
-    }, 5000);
-
-    return () => clearInterval(interval);
-  });
+    // const interval = setInterval(() => {
+    //   setCurrentPanelStack((currentPanelStack) => {
+    //     return [...currentPanelStack, newPanel];
+    //   });
+    // }, 5000);
+    // return () => clearInterval(interval);
+  }, []);
 
   const popPanel = () => {
     setCurrentPanelStack((currentPanelStack) => {
       const newPanelStack = [...currentPanelStack];
       newPanelStack.pop();
       return newPanelStack;
+    });
+  };
+
+  const pushPanel = (panel: Panel<PanelInfo>) => {
+    setCurrentPanelStack((currentPanelStack) => {
+      return [...currentPanelStack, panel];
     });
   };
 
@@ -175,6 +221,11 @@ export const ItemStackView = observer((props: ItemStackProps) => {
 
   const { displayName } = itemDetails;
 
+  const { storageSystems } = appModel;
+  if (storageSystems === null) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <h3>Slot: {slot}</h3>
@@ -195,7 +246,7 @@ export const ItemStackView = observer((props: ItemStackProps) => {
         onClose={() => setIsMoveDialogOpen(false)}
       >
         <DialogBody>
-          {appModel.storageData?.storages.map((storage) => (
+          {Array.from(storageSystems.entries()).map((storage) => (
             <Button key={storage.name} onClick={() => handleItemMove(storage.name)}>
               {storage.name}
             </Button>
