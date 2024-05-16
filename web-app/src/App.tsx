@@ -4,7 +4,7 @@ import './App.css';
 import { Card } from './components/base';
 import { AppModel } from './models/AppModel';
 import { absolute, flexCenter, flexCenterHorizontal, fullSize, padding } from './styles';
-import { ItemDetails, ItemStack, StorageInfo } from './interfaces/types';
+import { ItemDetails, ItemStack, StorageInfo, StorageSystem } from './interfaces/types';
 import React, { useEffect, useState } from 'react';
 import {
   Button,
@@ -31,7 +31,7 @@ export const App = observer(() => {
     );
   }
 
-  const { storageSystems: storageSystems } = appModel;
+  const { storageSystems } = appModel;
 
   return (
     <div css={[absolute(), fullSize]}>
@@ -55,6 +55,7 @@ const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) => {
     renderPanel: (panelProps: PanelInfo) => JSX.Element,
   ): Panel<PanelInfo> {
     return {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       props: {} as any,
       renderPanel: () =>
         renderPanel({
@@ -67,21 +68,35 @@ const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) => {
     };
   }
 
-  const systemPanel = createPanel('System', (panelProps) => (
-    <SystemPanel {...panelProps} />
-  ));
+  const { storageSystems } = appModel;
+
+  if (storageSystems === null) {
+    return <div>Loading...</div>;
+  }
+
+  const storageSystemList = Array.from(storageSystems.values());
 
   return (
     <div css={[fullSize, flexCenterHorizontal, padding('md')]}>
       <div css={[{ width: 'min(90%, 600px)' }]}>
         <InputGroup />
         <div>
-          {[{ name: 'Main Storage', storageCount: 10, itemCount: 100 }].map((system) => (
+          {storageSystemList.map((system) => (
             <div key={system.name}>
               <div>{system.name}</div>
-              <div>Storage Count: {system.storageCount}</div>
-              <div>Item Count: {system.itemCount}</div>
-              <Button onClick={() => props.openPanel(systemPanel)}>Open System</Button>
+              <div>Storage Count: {system.storages.length}</div>
+              <div>Item Count: Idk</div>
+              <Button
+                onClick={() =>
+                  props.openPanel(
+                    createPanel(system.name, (panelProps) => (
+                      <SystemPanel system={system} {...panelProps} />
+                    )),
+                  )
+                }
+              >
+                Open System
+              </Button>
             </div>
           ))}
         </div>
@@ -90,10 +105,20 @@ const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) => {
   );
 });
 
-interface SystemPanelInfo extends PanelInfo {}
+interface SystemPanelInfo extends PanelInfo {
+  system: StorageSystem;
+}
 
 const SystemPanel = observer((props: SystemPanelInfo) => {
-  return <div css={[fullSize]}></div>;
+  const { system } = props;
+
+  return (
+    <div css={[fullSize, { overflow: 'auto' }]}>
+      {system.storages.map((storage) => (
+        <Storage key={storage.name} storage={storage} />
+      ))}
+    </div>
+  );
 });
 
 export const PanelManager = observer(() => {
@@ -246,7 +271,7 @@ export const ItemStackView = observer((props: ItemStackProps) => {
         onClose={() => setIsMoveDialogOpen(false)}
       >
         <DialogBody>
-          {Array.from(storageSystems.entries()).map((storage) => (
+          {Array.from(storageSystems.values()).map((storage) => (
             <Button key={storage.name} onClick={() => handleItemMove(storage.name)}>
               {storage.name}
             </Button>

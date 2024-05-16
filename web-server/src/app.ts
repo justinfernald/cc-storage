@@ -86,7 +86,7 @@ app.ws('/ws', (ws, req) => {
 
         await fs.writeFile(
           `storage-systems-data/${hashedSystemName}.json`,
-          JSON.stringify(data),
+          JSON.stringify(data.storageSystem),
           'utf-8',
         );
 
