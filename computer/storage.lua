@@ -18,10 +18,11 @@ end
 local function findAllInventories()
   local inventories = {}
   peripheral.find("inventory", function(name, inventory)
-    local size = #inventory.list()
+    local inventoryList = inventory.list()
+    local size = inventoryList
     local itemStacks = {}
 
-    for slot = 1, size do
+    for slot, undetailedItem in pairs(inventoryList) do
       local item = inventory.getItemDetail(slot)
       if item then
         table.insert(itemStacks, {
