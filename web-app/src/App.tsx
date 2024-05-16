@@ -3,7 +3,17 @@ import './App.css';
 
 import { Card } from './components/base';
 import { AppModel } from './models/AppModel';
-import { absolute, flexCenter, flexCenterHorizontal, fullSize, padding } from './styles';
+import {
+  absolute,
+  flexBetween,
+  flexCenter,
+  flexCenterHorizontal,
+  flexCenterVertical,
+  flexColumn,
+  flexValue,
+  fullSize,
+  padding,
+} from './styles';
 import { ItemDetails, ItemStack, StorageInfo, StorageSystem } from './interfaces/types';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -13,11 +23,14 @@ import {
   Dialog,
   DialogBody,
   DialogFooter,
-  Icon,
   InputGroup,
+  MenuItem,
+  NumericInput,
   Panel,
   PanelStack2,
+  Slider,
 } from '@blueprintjs/core';
+import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select';
 
 const appModel = new AppModel();
 appModel.fetchUpdate();
@@ -49,6 +62,7 @@ interface PanelInfo {
   openPanel: (panel: Panel<PanelInfo>) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface SystemSelectionPanelInfo extends PanelInfo {}
 
 const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) => {
@@ -210,7 +224,10 @@ export const SystemListView = observer((props: SystemListViewProps) => {
   const { system } = props;
 
   const reducedItems = useMemo(() => {
-    const itemsMap = new Map<string, ItemStack[]>();
+    const itemStacksWithStorageMap = new Map<
+      string,
+      { storageName: string; itemStack: ItemStack }[]
+    >();
 
     for (const storage of system.storages) {
       if (!storage.itemStacks || !Array.isArray(storage.itemStacks)) {
@@ -218,27 +235,48 @@ export const SystemListView = observer((props: SystemListViewProps) => {
       }
 
       for (const itemStack of storage.itemStacks) {
-        if (!itemsMap.has(itemStack.name)) {
-          itemsMap.set(itemStack.name, []);
+        if (!itemStacksWithStorageMap.has(itemStack.name)) {
+          itemStacksWithStorageMap.set(itemStack.name, []);
         }
 
-        itemsMap.get(itemStack.name)?.push(itemStack);
+        itemStacksWithStorageMap.get(itemStack.name)?.push({
+          storageName: storage.name,
+          itemStack,
+        });
       }
     }
 
     const reducedItemsMap = new Map<string, Map<string, ReducedItemStack>>();
 
-    for (const [name, itemStacks] of itemsMap) {
-      console.log({ name, itemStacks });
+    for (const [name, itemStacksWithStorage] of itemStacksWithStorageMap) {
+      console.log({ name, itemStacks: itemStacksWithStorage });
       // group them by nbtHash
       const reducedItems = new Map<string, ReducedItemStack>();
-      for (const itemStack of itemStacks) {
-        if (!reducedItems.has(itemStack.nbtHash)) {
-          reducedItems.set(itemStack.nbtHash, itemStack);
+      for (const itemStackWithStorage of itemStacksWithStorage) {
+        if (!reducedItems.has(itemStackWithStorage.itemStack.nbtHash)) {
+          reducedItems.set(itemStackWithStorage.itemStack.nbtHash, {
+            ...itemStackWithStorage.itemStack,
+            reducedItemStackStorageInfo: [
+              {
+                storageName: itemStackWithStorage.storageName,
+                slot: itemStackWithStorage.itemStack.slot,
+                count: itemStackWithStorage.itemStack.count,
+              },
+            ],
+          });
         } else {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          reducedItems.get(itemStack.nbtHash)!.count += itemStack.count;
-          console.log(reducedItems.get(itemStack.nbtHash)!.count);
+          reducedItems.get(itemStackWithStorage.itemStack.nbtHash)!.count +=
+            itemStackWithStorage.itemStack.count;
+
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          reducedItems
+            .get(itemStackWithStorage.itemStack.nbtHash)!
+            .reducedItemStackStorageInfo.push({
+              storageName: itemStackWithStorage.storageName,
+              slot: itemStackWithStorage.itemStack.slot,
+              count: itemStackWithStorage.itemStack.count,
+            });
         }
       }
       reducedItemsMap.set(name, reducedItems);
@@ -248,10 +286,14 @@ export const SystemListView = observer((props: SystemListViewProps) => {
   }, [system]);
 
   return (
-    <div>
+    <div css={[flexColumn, { gap: 5 }]}>
       {reducedItems.map((reducedItemStack) =>
         Array.from(reducedItemStack.values()).map((itemStack) => (
-          <ListViewItem key={itemStack.slot} reducedItemStack={itemStack} />
+          <ListViewItem
+            key={itemStack.name}
+            storageSystem={system}
+            reducedItemStack={itemStack}
+          />
         )),
       )}
     </div>
@@ -259,22 +301,229 @@ export const SystemListView = observer((props: SystemListViewProps) => {
 });
 
 export interface ListViewItemProps {
+  storageSystem: StorageSystem;
   reducedItemStack: ReducedItemStack;
 }
 
 export const ListViewItem = observer((props: ListViewItemProps) => {
-  const { reducedItemStack } = props;
+  const { reducedItemStack, storageSystem } = props;
+
+  const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
+
+  const openItemDialog = () => {
+    setIsItemDialogOpen(true);
+  };
+
+  const closeItemDialog = () => {
+    setIsItemDialogOpen(false);
+  };
+
+  if (!reducedItemStack.itemDetails) {
+    return null;
+  }
+
+  let lore = reducedItemStack.itemDetails.lore;
+
+  if (!Array.isArray(lore)) {
+    lore = null;
+  }
+
+  let enchantments = reducedItemStack.itemDetails.enchantments;
+
+  if (!Array.isArray(enchantments)) {
+    enchantments = null;
+  }
 
   return (
-    <div>
-      <h3>{reducedItemStack.name}</h3>
-      <p>Count: {reducedItemStack.count}</p>
+    <>
+      <Button minimal css={[{ display: 'block' }]} onClick={openItemDialog}>
+        <div css={[flexBetween, flexCenterVertical, { gap: 10 }]}>
+          <div css={[{ width: 50, height: 50 }]}>
+            <img
+              css={[fullSize, { objectFit: 'cover' }]}
+              alt="Missing Texture"
+              src="https://cravatar.eu/helmhead/AJap/600.png"
+            />
+          </div>
+          <div css={[flexValue(1)]}>
+            <div css={[flexBetween, flexCenterVertical]}>
+              <h3>{reducedItemStack.itemDetails.displayName}</h3>
+              <h3>{reducedItemStack.count}</h3>
+            </div>
+            <div>
+              <i>{reducedItemStack.name}</i>
+              <div css={[flexColumn]}>
+                {lore?.map((loreText, i) => (
+                  <strong key={i}>{loreText}</strong>
+                ))}
+              </div>
+              <div css={[flexColumn]}>
+                {enchantments?.map((enchantment) => (
+                  <strong key={enchantment.name}>
+                    {enchantment.displayName} {enchantment.level}
+                  </strong>
+                ))}
+              </div>
+              {/* <div>
+              Storage Count:
+              {reducedItemStack.reducedItemStackStorageInfo.map((storageInfo) => (
+                <div key={`${storageInfo.storageName}:${storageInfo.slot}`}>
+                  {storageInfo.storageName} ({storageInfo.slot}): {storageInfo.count}
+                </div>
+              ))}
+            </div> */}
+            </div>
+          </div>
+        </div>
+      </Button>
+      <ItemDialog
+        storageSystem={storageSystem}
+        isOpen={isItemDialogOpen}
+        onClose={closeItemDialog}
+        reducedItemStack={reducedItemStack}
+      />
+    </>
+  );
+});
+
+export interface ItemDialogProps {
+  storageSystem: StorageSystem;
+  reducedItemStack: ReducedItemStack;
+  isOpen: boolean;
+  onClose?(): void;
+}
+
+export const ItemDialog = observer((props: ItemDialogProps) => {
+  const { storageSystem, reducedItemStack, isOpen, onClose } = props;
+
+  if (!reducedItemStack.itemDetails) {
+    return null;
+  }
+
+  return (
+    <Dialog title="Move Item" icon="inheritance" isOpen={isOpen} onClose={onClose}>
+      <DialogBody>
+        <ItemDeliveryView
+          storageSystem={storageSystem}
+          reducedItemStack={reducedItemStack}
+        />
+      </DialogBody>
+    </Dialog>
+  );
+});
+
+export interface ItemDeliveryViewProps {
+  storageSystem: StorageSystem;
+  reducedItemStack: ReducedItemStack;
+}
+
+export const ItemDeliveryView = observer((props: ItemDeliveryViewProps) => {
+  const { storageSystem, reducedItemStack } = props;
+
+  const [quantity, setQuantity] = useState(1);
+  const [selectedStorage, setSelectedStorage] = useState<StorageInfo | undefined>();
+
+  if (!reducedItemStack.itemDetails) {
+    return null;
+  }
+
+  return (
+    <div css={[flexColumn, { gap: 5 }]}>
+      <h3>{reducedItemStack.itemDetails.displayName}</h3>
+      <div css={[flexColumn, { gap: 5 }]}>
+        <div>
+          Quantity
+          {/* <Slider
+          value={quantity}
+          onChange={(value) => setQuantity(Math.max(1, value))}
+          min={0}
+          max={reducedItemStack.count}
+          stepSize={1}
+          labelStepSize={Math.max(
+            1,
+            2 ** (Math.floor(Math.log2(reducedItemStack.count)) - 2),
+          )}
+        /> */}
+          <NumericInput
+            width={'50px'}
+            value={quantity}
+            onValueChange={(value) => setQuantity(value)}
+            stepSize={1}
+            min={1}
+            max={reducedItemStack.count}
+          />
+        </div>
+        <div>
+          Inventory
+          <Select<StorageInfo>
+            items={storageSystem.storages}
+            itemPredicate={filterInventoryLocationListItem}
+            itemRenderer={renderInventoryLocationListItem}
+            noResults={
+              <MenuItem disabled={true} text="No results." roleStructure="listoption" />
+            }
+            onItemSelect={setSelectedStorage}
+          >
+            <Button
+              text={selectedStorage?.name ?? 'Select Inventory Location'}
+              rightIcon="double-caret-vertical"
+            />
+          </Select>
+        </div>
+        <div>
+          <Button intent="primary">Transfer</Button>
+        </div>
+      </div>
     </div>
   );
 });
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ReducedItemStack extends ItemStack {}
+const filterInventoryLocationListItem: ItemPredicate<StorageInfo> = (
+  query,
+  storageInfo,
+  _index,
+  exactMatch,
+) => {
+  const normalizedTitle = storageInfo.name.toLowerCase();
+  const normalizedQuery = query.toLowerCase();
+
+  if (exactMatch) {
+    return normalizedTitle === normalizedQuery;
+  } else {
+    return normalizedTitle.includes(normalizedQuery);
+  }
+};
+
+const renderInventoryLocationListItem: ItemRenderer<StorageInfo> = (
+  storageInfo,
+  { handleClick, handleFocus, modifiers, query },
+) => {
+  if (!modifiers.matchesPredicate) {
+    return null;
+  }
+  return (
+    <MenuItem
+      active={modifiers.active}
+      disabled={modifiers.disabled}
+      key={storageInfo.name}
+      label={storageInfo.name.toString()}
+      onClick={handleClick}
+      onFocus={handleFocus}
+      roleStructure="listoption"
+      text={`${storageInfo.name}`}
+    />
+  );
+};
+
+interface ReducedItemStackStorageInfo {
+  storageName: string;
+  slot: number;
+  count: number;
+}
+
+interface ReducedItemStack extends Omit<ItemStack, 'slot'> {
+  reducedItemStackStorageInfo: ReducedItemStackStorageInfo[];
+}
 interface SystemInventoryViewProps {
   system: StorageSystem;
   filterInfo: FilterInfo;
@@ -292,6 +541,7 @@ export const PanelManager = observer(() => {
     renderPanel: (panelProps: PanelInfo) => JSX.Element,
   ): Panel<PanelInfo> {
     return {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       props: {} as any,
       renderPanel: () =>
         renderPanel({
@@ -335,7 +585,14 @@ export const PanelManager = observer(() => {
     });
   };
 
-  return <PanelStack2 css={[fullSize]} stack={currentPanelStack} onClose={popPanel} />;
+  return (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <PanelStack2<Panel<any>>
+      css={[fullSize]}
+      stack={currentPanelStack}
+      onClose={popPanel}
+    />
+  );
 });
 
 export interface StorageProps {
