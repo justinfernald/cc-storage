@@ -1,6 +1,13 @@
 import { observer } from 'mobx-react-lite';
 
-import { flexCenterHorizontal, fullSize, padding } from '../../styles';
+import {
+  flexCenterHorizontal,
+  flexColumn,
+  flexValue,
+  fullSize,
+  padding,
+  relative,
+} from '../../styles';
 import { Button, InputGroup, Panel } from '@blueprintjs/core';
 import { PanelInfo } from './PanelManager';
 import { appModel } from '../../App';
@@ -37,27 +44,38 @@ export const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) =
   const storageSystemList = Array.from(storageSystems.values());
 
   return (
-    <div css={[fullSize, flexCenterHorizontal, padding('md')]}>
-      <div css={[{ width: 'min(90%, 600px)' }]}>
-        <InputGroup />
-        <div>
+    <div css={[flexCenterHorizontal, { overflow: 'auto' }]}>
+      <div css={[fullSize, flexColumn, { gap: 5, width: 'min(100%, 600px)' }]}>
+        <div css={[padding('md')]}>
+          <InputGroup css={[]} />
+        </div>
+        <div
+          css={[
+            flexValue(1),
+            padding('md'),
+            { overflow: 'auto' },
+            flexColumn,
+            { gap: 5 },
+          ]}
+        >
           {storageSystemList.map((system) => (
-            <div key={system.name}>
-              <div>{system.name}</div>
-              <div>Storage Count: {system.storages.length}</div>
-              <div>Item Count: Idk</div>
-              <Button
-                onClick={() =>
-                  props.openPanel(
-                    createPanel(system.name, (panelProps) => (
-                      <SystemPanel system={system} {...panelProps} />
-                    )),
-                  )
-                }
-              >
-                Open System
-              </Button>
-            </div>
+            <Button
+              minimal
+              css={[{ display: 'block', minHeight: 'unset' }]}
+              onClick={() =>
+                props.openPanel(
+                  createPanel(system.name, (panelProps) => (
+                    <SystemPanel system={system} {...panelProps} />
+                  )),
+                )
+              }
+            >
+              <div key={system.name}>
+                <h3>{system.name}</h3>
+                <div>Storage Count: {system.storages.length}</div>
+                <div>Item Count: Idk</div>
+              </div>
+            </Button>
           ))}
         </div>
       </div>

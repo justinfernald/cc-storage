@@ -50,7 +50,7 @@ export interface ItemDetails {
   maxCount: number;
   maxDamage: number | null;
   enchantments: Enchantment[] | null;
-  tags: string[];
+  tags: Record<string, boolean>;
 }
 
 /** Enchantment on item */

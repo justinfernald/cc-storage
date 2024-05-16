@@ -4,7 +4,7 @@ import { ItemStack, StorageSystem } from '../interfaces/types';
 import { useMemo } from 'react';
 import { FilterInfo } from '../interfaces/item-filter-types';
 import { ReducedItemStack } from '../interfaces/extra-types';
-import { flexColumn } from '../styles';
+import { flexColumn, padding } from '../styles';
 import { ListViewItem } from './ListViewItem';
 
 export interface SystemListViewProps {
@@ -78,7 +78,7 @@ export const SystemListView = observer((props: SystemListViewProps) => {
   }, [system]);
 
   return (
-    <div css={[flexColumn, { gap: 5 }]}>
+    <div css={[flexColumn, { gap: 5 }, padding('md')]}>
       {reducedItems.map((reducedItemStack) =>
         Array.from(reducedItemStack.values()).map((itemStack) => (
           <ListViewItem

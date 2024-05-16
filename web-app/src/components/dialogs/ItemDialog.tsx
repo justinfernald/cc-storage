@@ -1,9 +1,10 @@
 import { observer } from 'mobx-react-lite';
 
 import { StorageSystem } from '../../interfaces/types';
-import { Dialog, DialogBody } from '@blueprintjs/core';
+import { Dialog, DialogBody, Tab, Tabs } from '@blueprintjs/core';
 import { ReducedItemStack } from '../../interfaces/extra-types';
 import { ItemDeliveryView } from '../ItemDeliveryView';
+import { ItemDetailsView } from '../ItemDetailsView';
 
 export interface ItemDialogProps {
   storageSystem: StorageSystem;
@@ -20,12 +21,37 @@ export const ItemDialog = observer((props: ItemDialogProps) => {
   }
 
   return (
-    <Dialog title="Move Item" icon="inheritance" isOpen={isOpen} onClose={onClose}>
+    <Dialog
+      title={reducedItemStack.itemDetails.displayName}
+      icon="cube"
+      isOpen={isOpen}
+      onClose={onClose}
+    >
       <DialogBody>
-        <ItemDeliveryView
-          storageSystem={storageSystem}
-          reducedItemStack={reducedItemStack}
-        />
+        {isOpen && (
+          <Tabs large>
+            <Tab
+              id="delivery"
+              title="Delivery"
+              panel={
+                <ItemDeliveryView
+                  storageSystem={storageSystem}
+                  reducedItemStack={reducedItemStack}
+                />
+              }
+            />
+            <Tab
+              id="item-details"
+              title="Item Details"
+              panel={
+                <ItemDetailsView
+                  storageSystem={storageSystem}
+                  reducedItemStack={reducedItemStack}
+                />
+              }
+            />
+          </Tabs>
+        )}
       </DialogBody>
     </Dialog>
   );

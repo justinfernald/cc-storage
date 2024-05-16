@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import { flexColumn } from '../styles';
+import { flexBetween, flexColumn, flexValue } from '../styles';
 import { StorageInfo, StorageSystem } from '../interfaces/types';
 import { useState } from 'react';
 import { Button, MenuItem, NumericInput } from '@blueprintjs/core';
@@ -22,49 +22,70 @@ export const ItemDeliveryView = observer((props: ItemDeliveryViewProps) => {
     return null;
   }
 
+  const itemCount = reducedItemStack.count;
+  const itemCountInSelectedStorage = selectedStorage
+    ? reducedItemStack.reducedItemStackStorageInfo
+        .filter((s) => s.storageName === selectedStorage.name)
+        .reduce((acc, s) => acc + s.count, 0)
+    : null;
+  const itemCountInOtherStorages =
+    itemCountInSelectedStorage !== null ? itemCount - itemCountInSelectedStorage : null;
+
+  console.log({
+    itemCount,
+    itemCountInSelectedStorage,
+    itemCountInOtherStorages,
+  });
+
   return (
     <div css={[flexColumn, { gap: 5 }]}>
-      <h3>{reducedItemStack.itemDetails.displayName}</h3>
       <div css={[flexColumn, { gap: 5 }]}>
-        <div>
-          Quantity
-          {/* <Slider
-          value={quantity}
-          onChange={(value) => setQuantity(Math.max(1, value))}
-          min={0}
-          max={reducedItemStack.count}
-          stepSize={1}
-          labelStepSize={Math.max(
-            1,
-            2 ** (Math.floor(Math.log2(reducedItemStack.count)) - 2),
-          )}
-        /> */}
-          <NumericInput
-            width={'50px'}
-            value={quantity}
-            onValueChange={(value) => setQuantity(value)}
-            stepSize={1}
-            min={1}
-            max={reducedItemStack.count}
-          />
-        </div>
-        <div>
-          Inventory
-          <Select<StorageInfo>
-            items={storageSystem.storages}
-            itemPredicate={filterInventoryLocationListItem}
-            itemRenderer={renderInventoryLocationListItem}
-            noResults={
-              <MenuItem disabled={true} text="No results." roleStructure="listoption" />
-            }
-            onItemSelect={setSelectedStorage}
-          >
-            <Button
-              text={selectedStorage?.name ?? 'Select Inventory Location'}
-              rightIcon="double-caret-vertical"
+        <div css={[flexColumn, { gap: 5, width: 270, alignSelf: 'center' }]}>
+          <div>
+            Inventory
+            <Select<StorageInfo>
+              items={storageSystem.storages}
+              itemPredicate={filterInventoryLocationListItem}
+              itemRenderer={renderInventoryLocationListItem}
+              noResults={
+                <MenuItem disabled={true} text="No results." roleStructure="listoption" />
+              }
+              onItemSelect={setSelectedStorage}
+            >
+              <Button
+                fill
+                text={selectedStorage?.name ?? 'Select Inventory Location'}
+                rightIcon="double-caret-vertical"
+              />
+            </Select>
+          </div>
+          <div>
+            Quantity
+            {/* <Slider
+              value={quantity}
+              onChange={(value) => setQuantity(Math.max(1, value))}
+              min={0}
+              max={reducedItemStack.count}
+              stepSize={1}
+              labelStepSize={Math.max(
+                1,
+                2 ** (Math.floor(Math.log2(reducedItemStack.count)) - 2),
+              )}
+            /> */}
+            <NumericInput
+              disabled={!selectedStorage || !itemCountInOtherStorages}
+              fill
+              width={'50px'}
+              value={quantity}
+              onValueChange={(value) => setQuantity(value)}
+              stepSize={1}
+              min={1}
+              // intentionally using || to catch if value is 0
+              max={itemCountInOtherStorages || undefined}
             />
-          </Select>
+          </div>
         </div>
+        <div>Transfer Breakdown</div>
         <div>
           <Button intent="primary">Transfer</Button>
         </div>

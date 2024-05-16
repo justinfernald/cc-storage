@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import { flexCenterHorizontal, fullSize } from '../styles';
+import { flexCenterHorizontal, flexColumn, fullSize, padding } from '../styles';
 import { StorageSystem } from '../interfaces/types';
 import { useState } from 'react';
 import { Button, ControlGroup, InputGroup } from '@blueprintjs/core';
@@ -30,8 +30,8 @@ export const SystemDisplay = observer((props: SystemDisplayProps) => {
 
   return (
     <div css={[fullSize, flexCenterHorizontal]}>
-      <div css={[{ width: 'min(90%, 600px)' }]}>
-        <ControlGroup fill={true} vertical={false}>
+      <div css={[fullSize, flexColumn, { gap: 5, width: 'min(100%, 600px)' }]}>
+        <ControlGroup css={[padding('md')]} fill={true} vertical={false}>
           <Button
             icon={displayMode === SystemDisplayMode.LIST ? 'list' : 'box'}
             title={
@@ -47,12 +47,14 @@ export const SystemDisplay = observer((props: SystemDisplayProps) => {
           />
           <InputGroup fill={true} rightElement={<Button minimal icon="filter-list" />} />
         </ControlGroup>
-        {displayMode === SystemDisplayMode.LIST && (
-          <SystemListView filterInfo={filterInfo} system={system} />
-        )}
-        {displayMode === SystemDisplayMode.INVENTORY && (
-          <SystemInventoryView filterInfo={filterInfo} system={system} />
-        )}
+        <div css={[{ overflow: 'auto' }]}>
+          {displayMode === SystemDisplayMode.LIST && (
+            <SystemListView filterInfo={filterInfo} system={system} />
+          )}
+          {displayMode === SystemDisplayMode.INVENTORY && (
+            <SystemInventoryView filterInfo={filterInfo} system={system} />
+          )}
+        </div>
       </div>
     </div>
   );

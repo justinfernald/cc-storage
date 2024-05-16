@@ -55,7 +55,7 @@ export const ListViewItem = observer((props: ListViewItemProps) => {
             <img
               css={[fullSize, { objectFit: 'cover' }]}
               alt="Missing Texture"
-              src="https://cravatar.eu/helmhead/AJap/600.png"
+              // src="https://cravatar.eu/helmhead/AJap/600.png"
             />
           </div>
           <div css={[flexValue(1)]}>

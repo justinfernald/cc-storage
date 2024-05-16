@@ -13,9 +13,7 @@ export const App = observer(() => {
   if (!appModel.storageSystems) {
     return (
       <div css={[absolute(), fullSize, flexCenter, padding('md')]}>
-        <Card css={{}}>
-          <h1>Fetching Update...</h1>
-        </Card>
+        Fetching Update...
       </div>
     );
   }
