@@ -77,8 +77,7 @@ app.ws('/ws', (ws, req) => {
       }
 
       if (message.type === MessageTypeComputerToServer.STORAGE_SYSTEM_UPDATE) {
-        const data = message.data as StorageSystemUpdate;
-
+        const data = message.data;
         const systemName = data.storageSystem.name;
 
         // keep only alphanumeric characters

@@ -5,13 +5,15 @@ import { Card } from './components/base';
 import { AppModel } from './models/AppModel';
 import { absolute, flexCenter, flexCenterHorizontal, fullSize, padding } from './styles';
 import { ItemDetails, ItemStack, StorageInfo, StorageSystem } from './interfaces/types';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Collapse,
+  ControlGroup,
   Dialog,
   DialogBody,
   DialogFooter,
+  Icon,
   InputGroup,
   Panel,
   PanelStack2,
@@ -114,11 +116,174 @@ const SystemPanel = observer((props: SystemPanelInfo) => {
 
   return (
     <div css={[fullSize, { overflow: 'auto' }]}>
-      {system.storages.map((storage) => (
+      <SystemDisplay system={system} />
+      {/* {system.storages.map((storage) => (
         <Storage key={storage.name} storage={storage} />
-      ))}
+      ))} */}
     </div>
   );
+});
+
+interface SystemDisplayProps {
+  system: StorageSystem;
+}
+
+enum SearchTag {
+  NAME,
+  DISPLAY_NAME,
+  LORE,
+  ENCHANTMENTS,
+  TAGS,
+}
+
+enum SystemDisplayMode {
+  LIST,
+  INVENTORY,
+}
+
+enum SortMode {
+  NAME,
+  COUNT,
+  DISPLAY_NAME,
+}
+
+enum SortDirection {
+  ASC,
+  DESC,
+}
+
+interface FilterInfo {
+  search: string;
+  regexMode: boolean;
+  searchTags: Set<SearchTag>;
+  sortMode: SortMode;
+  sortDirection: SortDirection;
+}
+
+export const SystemDisplay = observer((props: SystemDisplayProps) => {
+  const { system } = props;
+
+  const [displayMode, setDisplayMode] = useState(SystemDisplayMode.LIST);
+  const [filterInfo, setFilterInfo] = useState<FilterInfo>({
+    search: '',
+    regexMode: false,
+    searchTags: new Set(),
+    sortMode: SortMode.NAME,
+    sortDirection: SortDirection.ASC,
+  });
+
+  return (
+    <div css={[fullSize, flexCenterHorizontal]}>
+      <div css={[{ width: 'min(90%, 600px)' }]}>
+        <ControlGroup fill={true} vertical={false}>
+          <Button
+            icon={displayMode === SystemDisplayMode.LIST ? 'list' : 'box'}
+            title={
+              displayMode === SystemDisplayMode.LIST ? 'List View' : 'Inventory View'
+            }
+            onClick={() => {
+              setDisplayMode((mode) =>
+                mode === SystemDisplayMode.LIST
+                  ? SystemDisplayMode.INVENTORY
+                  : SystemDisplayMode.LIST,
+              );
+            }}
+          />
+          <InputGroup fill={true} rightElement={<Button minimal icon="filter-list" />} />
+        </ControlGroup>
+        {displayMode === SystemDisplayMode.LIST && (
+          <SystemListView filterInfo={filterInfo} system={system} />
+        )}
+        {displayMode === SystemDisplayMode.INVENTORY && (
+          <SystemInventoryView filterInfo={filterInfo} system={system} />
+        )}
+      </div>
+    </div>
+  );
+});
+interface SystemListViewProps {
+  system: StorageSystem;
+  filterInfo: FilterInfo;
+}
+
+export const SystemListView = observer((props: SystemListViewProps) => {
+  const { system } = props;
+
+  const reducedItems = useMemo(() => {
+    const itemsMap = new Map<string, ItemStack[]>();
+
+    for (const storage of system.storages) {
+      if (!storage.itemStacks || !Array.isArray(storage.itemStacks)) {
+        continue;
+      }
+
+      for (const itemStack of storage.itemStacks) {
+        if (!itemsMap.has(itemStack.name)) {
+          itemsMap.set(itemStack.name, []);
+        }
+
+        itemsMap.get(itemStack.name)?.push(itemStack);
+      }
+    }
+
+    const reducedItemsMap = new Map<string, Map<string, ReducedItemStack>>();
+
+    for (const [name, itemStacks] of itemsMap) {
+      console.log({ name, itemStacks });
+      // group them by nbtHash
+      const reducedItems = new Map<string, ReducedItemStack>();
+      for (const itemStack of itemStacks) {
+        if (!reducedItems.has(itemStack.nbtHash)) {
+          reducedItems.set(itemStack.nbtHash, itemStack);
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          reducedItems.get(itemStack.nbtHash)!.count += itemStack.count;
+          console.log(reducedItems.get(itemStack.nbtHash)!.count);
+        }
+      }
+      reducedItemsMap.set(name, reducedItems);
+    }
+
+    return Array.from(reducedItemsMap.values());
+  }, [system]);
+
+  return (
+    <div>
+      {reducedItems.map((reducedItemStack) =>
+        Array.from(reducedItemStack.values()).map((itemStack) => (
+          <ListViewItem key={itemStack.slot} reducedItemStack={itemStack} />
+        )),
+      )}
+    </div>
+  );
+});
+
+export interface ListViewItemProps {
+  reducedItemStack: ReducedItemStack;
+}
+
+export const ListViewItem = observer((props: ListViewItemProps) => {
+  const { reducedItemStack } = props;
+
+  return (
+    <div>
+      <h3>{reducedItemStack.name}</h3>
+      <p>Count: {reducedItemStack.count}</p>
+    </div>
+  );
+});
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface ReducedItemStack extends ItemStack {}
+interface SystemInventoryViewProps {
+  system: StorageSystem;
+  filterInfo: FilterInfo;
+}
+
+export const SystemInventoryView = observer((props: SystemInventoryViewProps) => {
+  const { system } = props;
+
+  return <div></div>;
 });
 
 export const PanelManager = observer(() => {

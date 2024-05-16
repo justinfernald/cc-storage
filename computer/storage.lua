@@ -1,3 +1,6 @@
+-- Get name of the computer on network as string
+local computerName = os.getComputerLabel() or tostring(os.getComputerID())
+
 -- Define the ItemDetails and other structures
 local function getItemDetails(item)
   return {
@@ -44,12 +47,16 @@ end
 local function gatherInventoryData()
   local storages = findAllInventories()
   local inventoryUpdate = {
+    name = computerName,
     storages = storages
   }
 
   local message = {
-    type = "INVENTORY_UPDATE",
-    data = inventoryUpdate
+    type = "STORAGE_SYSTEM_UPDATE",
+    data = {
+      updateTime = os.time(),
+      storageSystem = inventoryUpdate
+    }
   }
 
   return textutils.serializeJSON(message)
@@ -81,6 +88,16 @@ local function moveItems(moves)
   end
 end
 
+local function sendConnectionMessage(ws)
+  local message = {
+    type = "CONNECTION",
+    data = {
+      name = computerName
+    }
+  }
+  ws.send(textutils.serializeJSON(message))
+end
+
 -- WebSocket URL
 local wsUrl = "ws://localhost:3000/ws" -- Replace with your WebSocket URL
 
@@ -104,13 +121,15 @@ local function listenWebSocket()
     return
   end
 
+  sendConnectionMessage(ws)
+
   while true do
     local event, url, message = os.pullEvent("websocket_message")
     if url == wsUrl then
       handleWebSocketMessage(ws, message)
     end
 
-    sleep(1)
+    sleep(0.1)
   end
 end
 

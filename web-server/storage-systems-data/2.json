@@ -1,0 +1,268 @@
+{
+  "name": "2",
+  "storages": [
+    {
+      "itemStacks": [
+        {
+          "nbtHash": "",
+          "name": "minecraft:birch_fence",
+          "slot": 1,
+          "count": 64,
+          "itemDetails": {
+            "lore": {},
+            "tags": {
+              "forge:fences/wooden": true,
+              "forge:fences": true,
+              "minecraft:wooden_fences": true,
+              "minecraft:fences": true
+            },
+            "maxCount": 64,
+            "displayName": "Birch Fence"
+          }
+        },
+        {
+          "nbtHash": "",
+          "name": "minecraft:diamond_block",
+          "slot": 2,
+          "count": 64,
+          "itemDetails": {
+            "lore": {},
+            "tags": {
+              "forge:storage_blocks": true,
+              "forge:storage_blocks/diamond": true
+            },
+            "maxCount": 64,
+            "displayName": "Block of Diamond"
+          }
+        },
+        {
+          "nbtHash": "",
+          "name": "minecraft:redstone",
+          "slot": 3,
+          "count": 64,
+          "itemDetails": {
+            "lore": {},
+            "tags": {
+              "forge:dusts": true,
+              "minecraft:trim_materials": true,
+              "forge:dusts/redstone": true
+            },
+            "maxCount": 64,
+            "displayName": "Redstone Dust"
+          }
+        },
+        {
+          "nbtHash": "",
+          "name": "minecraft:spruce_fence_gate",
+          "slot": 4,
+          "count": 64,
+          "itemDetails": {
+            "lore": {},
+            "tags": {
+              "forge:fence_gates": true,
+              "minecraft:fence_gates": true,
+              "forge:fence_gates/wooden": true
+            },
+            "maxCount": 64,
+            "displayName": "Spruce Fence Gate"
+          }
+        }
+      ],
+      "name": "minecraft:trapped_chest_0",
+      "metaData": { "size": 4 }
+    },
+    { "itemStacks": {}, "name": "create:item_vault_0", "metaData": { "size": 0 } },
+    { "itemStacks": {}, "name": "minecraft:chest_1", "metaData": { "size": 0 } },
+    {
+      "itemStacks": [
+        {
+          "nbtHash": "15da08c73df611649abfb3e61a9fc28e",
+          "name": "minecraft:stone_pickaxe",
+          "slot": 1,
+          "count": 1,
+          "itemDetails": {
+            "durability": 1,
+            "tags": {
+              "forge:tools/pickaxes": true,
+              "minecraft:pickaxes": true,
+              "create:upright_on_deployer": true,
+              "minecraft:breaks_decorated_pots": true,
+              "forge:tools": true,
+              "minecraft:cluster_max_harvestables": true,
+              "minecraft:tools": true
+            },
+            "lore": {},
+            "enchantments": [
+              {
+                "level": 3,
+                "name": "minecraft:unbreaking",
+                "displayName": "Unbreaking III"
+              },
+              {
+                "level": 3,
+                "name": "minecraft:efficiency",
+                "displayName": "Efficiency III"
+              }
+            ],
+            "maxDamage": 131,
+            "maxCount": 1,
+            "displayName": "Stone Pickaxe"
+          }
+        }
+      ],
+      "name": "minecraft:chest_2",
+      "metaData": { "size": 1 }
+    },
+    {
+      "itemStacks": [
+        {
+          "nbtHash": "",
+          "name": "minecraft:redstone_block",
+          "slot": 3,
+          "count": 85,
+          "itemDetails": {
+            "lore": {},
+            "tags": {
+              "forge:storage_blocks/redstone": true,
+              "forge:storage_blocks": true
+            },
+            "maxCount": 64,
+            "displayName": "Block of Redstone"
+          }
+        },
+        {
+          "nbtHash": "",
+          "name": "minecraft:redstone",
+          "slot": 4,
+          "count": 769,
+          "itemDetails": {
+            "lore": {},
+            "tags": {
+              "forge:dusts": true,
+              "minecraft:trim_materials": true,
+              "forge:dusts/redstone": true
+            },
+            "maxCount": 64,
+            "displayName": "Redstone Dust"
+          }
+        },
+        {
+          "nbtHash": "",
+          "name": "minecraft:tinted_glass",
+          "slot": 5,
+          "count": 64,
+          "itemDetails": {
+            "lore": {},
+            "tags": { "forge:glass": true, "forge:glass/tinted": true },
+            "maxCount": 64,
+            "displayName": "Tinted Glass"
+          }
+        },
+        {
+          "nbtHash": "4d7155af0e7526bdd57ee08743f310b0",
+          "name": "computercraft:turtle_normal",
+          "slot": 6,
+          "count": 4,
+          "itemDetails": {
+            "lore": {},
+            "tags": { "computercraft:turtle": true },
+            "maxCount": 64,
+            "displayName": "Turtle"
+          }
+        },
+        {
+          "nbtHash": "4d7155af0e7526bdd57ee08743f310b0",
+          "name": "computercraft:turtle_normal",
+          "slot": 7,
+          "count": 1,
+          "itemDetails": {
+            "lore": {},
+            "tags": { "computercraft:turtle": true },
+            "maxCount": 64,
+            "displayName": "Turtle"
+          }
+        }
+      ],
+      "name": "storagedrawers:controller_slave_0",
+      "metaData": { "size": 7 }
+    },
+    {
+      "itemStacks": [
+        {
+          "nbtHash": "350082c34797440befeec8ed35cd5f31",
+          "name": "minecraft:chest",
+          "slot": 1,
+          "count": 64,
+          "itemDetails": {
+            "lore": ["(+NBT)"],
+            "tags": {
+              "balm:wooden_chests": true,
+              "forge:chests/wooden": true,
+              "forge:chests": true
+            },
+            "maxCount": 64,
+            "displayName": "Chest"
+          }
+        },
+        {
+          "nbtHash": "11b42303912c272c0ead20e026feaea3",
+          "name": "minecraft:stick",
+          "slot": 2,
+          "count": 64,
+          "itemDetails": {
+            "lore": ["lore!"],
+            "tags": {
+              "forge:rods/wooden": true,
+              "forge:rods": true,
+              "balm:wooden_rods": true
+            },
+            "maxCount": 64,
+            "displayName": "Stick"
+          }
+        },
+        {
+          "nbtHash": "",
+          "name": "create_enchantment_industry:printer",
+          "slot": 3,
+          "count": 1,
+          "itemDetails": {
+            "lore": {},
+            "tags": {},
+            "maxCount": 64,
+            "displayName": "Printer"
+          }
+        },
+        {
+          "nbtHash": "05d2cf795610d7958d45f53cc910581e",
+          "name": "computercraft:turtle_advanced",
+          "slot": 4,
+          "count": 2,
+          "itemDetails": {
+            "lore": {},
+            "tags": { "minecraft:piglin_loved": true, "computercraft:turtle": true },
+            "maxCount": 64,
+            "displayName": "Advanced Turtle"
+          }
+        },
+        {
+          "nbtHash": "",
+          "name": "minecraft:stick",
+          "slot": 5,
+          "count": 12,
+          "itemDetails": {
+            "lore": {},
+            "tags": {
+              "forge:rods/wooden": true,
+              "forge:rods": true,
+              "balm:wooden_rods": true
+            },
+            "maxCount": 64,
+            "displayName": "Stick"
+          }
+        }
+      ],
+      "name": "minecraft:chest_0",
+      "metaData": { "size": 5 }
+    }
+  ]
+}
