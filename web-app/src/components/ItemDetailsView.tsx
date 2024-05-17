@@ -1,12 +1,8 @@
 import { observer } from 'mobx-react-lite';
 
 import { flexColumn } from '../styles';
-import { StorageInfo, StorageSystem } from '../interfaces/types';
-import { useState } from 'react';
-import { Button, MenuItem, NumericInput } from '@blueprintjs/core';
-import { ItemPredicate, ItemRenderer, Select } from '@blueprintjs/select';
+import { StorageSystem } from '../interfaces/types';
 import { ReducedItemStack } from '../interfaces/extra-types';
-import { toJS } from 'mobx';
 
 export interface ItemDetailsViewProps {
   storageSystem: StorageSystem;
@@ -106,7 +102,24 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
         <div>
           <strong>Storage Locations:</strong>
           <div css={[flexColumn, { gap: 5, paddingLeft: 10 }]}>
-            {storageSystem.storages
+            {[
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+              ...storageSystem.storages,
+            ]
               .filter((storage) => {
                 // only include if it has item
 

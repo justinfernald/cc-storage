@@ -39,7 +39,7 @@ export interface ItemStack {
   count: number;
   nbtHash: string;
 
-  itemDetails: ItemDetails | null;
+  itemDetails: ItemDetails;
 }
 
 /** Extra details for item */

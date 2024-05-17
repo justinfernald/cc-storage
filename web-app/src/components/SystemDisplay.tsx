@@ -45,7 +45,13 @@ export const SystemDisplay = observer((props: SystemDisplayProps) => {
               );
             }}
           />
-          <InputGroup fill={true} rightElement={<Button minimal icon="filter-list" />} />
+          <InputGroup
+            fill={true}
+            rightElement={<Button minimal icon="filter-list" />}
+            onValueChange={(value) => {
+              setFilterInfo((info) => ({ ...info, search: value }));
+            }}
+          />
         </ControlGroup>
         <div css={[{ overflow: 'auto' }]}>
           {displayMode === SystemDisplayMode.LIST && (
