@@ -42,7 +42,7 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
   }
 
   const tagsList = Object.entries(reducedItemStack.itemDetails.tags)
-    .filter(([tag, value]) => value)
+    .filter(([_tag, value]) => value)
     .map(([tag]) => tag);
 
   return (

@@ -6,7 +6,6 @@ import {
   flexValue,
   fullSize,
   padding,
-  relative,
 } from '../../styles';
 import { Button, InputGroup, Panel } from '@blueprintjs/core';
 import { PanelInfo } from './PanelManager';
@@ -47,7 +46,7 @@ export const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) =
     <div css={[flexCenterHorizontal, { overflow: 'auto' }]}>
       <div css={[fullSize, flexColumn, { gap: 5, width: 'min(100%, 600px)' }]}>
         <div css={[padding('md')]}>
-          <InputGroup css={[]} />
+          <InputGroup />
         </div>
         <div
           css={[

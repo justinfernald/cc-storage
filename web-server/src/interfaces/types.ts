@@ -39,7 +39,7 @@ export interface ItemStack {
   count: number;
   nbtHash: string;
 
-  itemDetails: ItemDetails | null;
+  itemDetails: ItemDetails;
 }
 
 /** Extra details for item */
@@ -50,7 +50,7 @@ export interface ItemDetails {
   maxCount: number;
   maxDamage: number | null;
   enchantments: Enchantment[] | null;
-  tags: string[];
+  tags: Record<string, boolean>;
 }
 
 /** Enchantment on item */

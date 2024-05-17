@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 
 import { ItemStack, StorageSystem } from '../interfaces/types';
 import { useMemo } from 'react';
-import { FilterInfo, SearchTag } from '../interfaces/item-filter-types';
+import { FilterInfo, SearchTag, SortDirection } from '../interfaces/item-filter-types';
 import { ReducedItemStack } from '../interfaces/extra-types';
 import { flexColumn, padding } from '../styles';
 import { ListViewItem } from './ListViewItem';
@@ -47,7 +47,7 @@ export const SystemListView = observer((props: SystemListViewProps) => {
         if (!reducedItems.has(itemStackWithStorage.itemStack.nbtHash)) {
           reducedItems.set(itemStackWithStorage.itemStack.nbtHash, {
             ...itemStackWithStorage.itemStack,
-            reducedItemStackStorageInfo: [
+            storageSlotInfo: [
               {
                 storageName: itemStackWithStorage.storageName,
                 slot: itemStackWithStorage.itemStack.slot,
@@ -61,35 +61,41 @@ export const SystemListView = observer((props: SystemListViewProps) => {
             itemStackWithStorage.itemStack.count;
 
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          reducedItems
-            .get(itemStackWithStorage.itemStack.nbtHash)!
-            .reducedItemStackStorageInfo.push({
-              storageName: itemStackWithStorage.storageName,
-              slot: itemStackWithStorage.itemStack.slot,
-              count: itemStackWithStorage.itemStack.count,
-            });
+          reducedItems.get(itemStackWithStorage.itemStack.nbtHash)!.storageSlotInfo.push({
+            storageName: itemStackWithStorage.storageName,
+            slot: itemStackWithStorage.itemStack.slot,
+            count: itemStackWithStorage.itemStack.count,
+          });
         }
       }
       reducedItemsMap.set(name, reducedItems);
     }
 
     return Array.from(reducedItemsMap.values());
-  }, [system]);
+  }, [system, filterInfo]);
 
   return (
     <div css={[flexColumn, { gap: 5 }, padding('md')]}>
-      {reducedItems.map((reducedItemStack) =>
-        filterReducedItemStackCollection(
-          Array.from(reducedItemStack.values()),
-          filterInfo,
-        ).map((itemStack) => (
+      {reducedItems
+        .flatMap((reducedItemStack) =>
+          filterReducedItemStackCollection(
+            Array.from(reducedItemStack.values()),
+            filterInfo,
+          ),
+        )
+        .toSorted(
+          (itemStackA, itemStackB) =>
+            itemStackA.itemDetails.displayName.localeCompare(
+              itemStackB.itemDetails.displayName,
+            ) * (filterInfo.sortDirection === SortDirection.ASC ? 1 : -1),
+        )
+        .map((itemStack) => (
           <ListViewItem
             key={`${itemStack.name}:${itemStack.nbtHash}`}
             storageSystem={system}
             reducedItemStack={itemStack}
           />
-        )),
-      )}
+        ))}
     </div>
   );
 });
@@ -140,7 +146,7 @@ export function filterReducedItemStack(
 
         if (
           reducedItemStack.itemDetails.enchantments.some((enchantment) =>
-            [enchantment.displayName, enchantment.name, enchantment.level]
+            [enchantment.displayName, /* enchantment.name,*/ enchantment.level]
               .map(String)
               .some((value) => valueMatchesSearch(value, searchText, regexMode)),
           )

@@ -1,9 +1,9 @@
 export enum SearchTag {
-  NAME,
-  DISPLAY_NAME,
-  LORE,
-  ENCHANTMENTS,
-  TAGS,
+  NAME = 'Name',
+  DISPLAY_NAME = 'Display Name',
+  LORE = 'Lore',
+  ENCHANTMENTS = 'Enchantments',
+  TAGS = 'Tags',
 }
 
 export enum SystemDisplayMode {
@@ -12,9 +12,9 @@ export enum SystemDisplayMode {
 }
 
 export enum SortMode {
-  NAME,
-  COUNT,
-  DISPLAY_NAME,
+  NAME = 'Name',
+  COUNT = 'Count',
+  DISPLAY_NAME = 'Display Name',
 }
 
 export enum SortDirection {

@@ -51,13 +51,13 @@ export const ListViewItem = observer((props: ListViewItemProps) => {
     <>
       <Button minimal css={[{ display: 'block' }]} onClick={openItemDialog}>
         <div css={[flexBetween, flexCenterVertical, { gap: 10 }]}>
-          <div css={[{ width: 50, height: 50 }]}>
+          {/* <div css={[{ width: 50, height: 50 }]}>
             <img
               css={[fullSize, { objectFit: 'cover' }]}
               alt="Missing Texture"
-              // src="https://cravatar.eu/helmhead/AJap/600.png"
+              src="https://cravatar.eu/helmhead/AJap/100.png"
             />
-          </div>
+          </div> */}
           <div css={[flexValue(1)]}>
             <div css={[flexBetween, flexCenterVertical]}>
               <h3>{reducedItemStack.itemDetails.displayName}</h3>
@@ -77,14 +77,6 @@ export const ListViewItem = observer((props: ListViewItemProps) => {
                   </strong>
                 ))}
               </div>
-              {/* <div>
-              Storage Count:
-              {reducedItemStack.reducedItemStackStorageInfo.map((storageInfo) => (
-                <div key={`${storageInfo.storageName}:${storageInfo.slot}`}>
-                  {storageInfo.storageName} ({storageInfo.slot}): {storageInfo.count}
-                </div>
-              ))}
-            </div> */}
             </div>
           </div>
         </div>
