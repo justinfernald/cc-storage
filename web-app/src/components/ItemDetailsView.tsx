@@ -102,24 +102,7 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
         <div>
           <strong>Storage Locations:</strong>
           <div css={[flexColumn, { gap: 5, paddingLeft: 10 }]}>
-            {[
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-              ...storageSystem.storages,
-            ]
+            {storageSystem.storages
               .filter((storage) => {
                 // only include if it has item
 

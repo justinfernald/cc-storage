@@ -60,6 +60,7 @@ export const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) =
         >
           {storageSystemList.map((system) => (
             <Button
+              key={system.name}
               minimal
               css={[{ display: 'block', minHeight: 'unset' }]}
               onClick={() =>
@@ -70,7 +71,7 @@ export const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) =
                 )
               }
             >
-              <div key={system.name}>
+              <div>
                 <h3>{system.name}</h3>
                 <div>Storage Count: {system.storages.length}</div>
                 <div>Item Count: Idk</div>

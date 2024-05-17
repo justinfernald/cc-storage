@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button, ControlGroup, InputGroup } from '@blueprintjs/core';
 import {
   FilterInfo,
+  SearchTag,
   SortDirection,
   SortMode,
   SystemDisplayMode,
@@ -23,7 +24,13 @@ export const SystemDisplay = observer((props: SystemDisplayProps) => {
   const [filterInfo, setFilterInfo] = useState<FilterInfo>({
     search: '',
     regexMode: false,
-    searchTags: new Set(),
+    searchTags: new Set([
+      SearchTag.DISPLAY_NAME,
+      SearchTag.NAME,
+      SearchTag.LORE,
+      SearchTag.ENCHANTMENTS,
+      SearchTag.TAGS,
+    ]),
     sortMode: SortMode.NAME,
     sortDirection: SortDirection.ASC,
   });

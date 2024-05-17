@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import { flexBetween, flexColumn, flexValue } from '../styles';
+import { flexColumn } from '../styles';
 import { StorageInfo, StorageSystem } from '../interfaces/types';
 import { useState } from 'react';
 import { Button, MenuItem, NumericInput } from '@blueprintjs/core';

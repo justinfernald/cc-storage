@@ -41,7 +41,6 @@ export const SystemListView = observer((props: SystemListViewProps) => {
     const reducedItemsMap = new Map<string, Map<string, ReducedItemStack>>();
 
     for (const [name, itemStacksWithStorage] of itemStacksWithStorageMap) {
-      console.log({ name, itemStacks: itemStacksWithStorage });
       // group them by nbtHash
       const reducedItems = new Map<string, ReducedItemStack>();
       for (const itemStackWithStorage of itemStacksWithStorage) {
@@ -85,7 +84,7 @@ export const SystemListView = observer((props: SystemListViewProps) => {
           filterInfo,
         ).map((itemStack) => (
           <ListViewItem
-            key={itemStack.name}
+            key={`${itemStack.name}:${itemStack.nbtHash}`}
             storageSystem={system}
             reducedItemStack={itemStack}
           />
@@ -108,14 +107,14 @@ export function valueMatchesSearch(
     }
   }
 
-  return value.includes(searchText);
+  return value.toLowerCase().includes(searchText.toLowerCase());
 }
 
 export function filterReducedItemStack(
   reducedItemStack: ReducedItemStack,
   filterInfo: FilterInfo,
 ): boolean {
-  const searchText = filterInfo.search.toLowerCase();
+  const searchText = filterInfo.search;
   const regexMode = filterInfo.regexMode;
 
   for (const searchTag of filterInfo.searchTags) {
@@ -132,7 +131,10 @@ export function filterReducedItemStack(
         }
         break;
       case SearchTag.ENCHANTMENTS:
-        if (reducedItemStack.itemDetails.enchantments === null) {
+        if (
+          reducedItemStack.itemDetails.enchantments === null ||
+          !Array.isArray(reducedItemStack.itemDetails.enchantments)
+        ) {
           break;
         }
 
@@ -147,7 +149,10 @@ export function filterReducedItemStack(
         }
         break;
       case SearchTag.LORE:
-        if (reducedItemStack.itemDetails.lore === null) {
+        if (
+          reducedItemStack.itemDetails.lore === null ||
+          !Array.isArray(reducedItemStack.itemDetails.lore)
+        ) {
           break;
         }
 
