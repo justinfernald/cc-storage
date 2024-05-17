@@ -1,12 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import {
-  flexBetween,
-  flexCenterVertical,
-  flexColumn,
-  flexValue,
-  fullSize,
-} from '../styles';
+import { flexBetween, flexCenterVertical, flexColumn, flexValue } from '../styles';
 import { StorageSystem } from '../interfaces/types';
 import { useState } from 'react';
 import { Button } from '@blueprintjs/core';
@@ -30,10 +24,6 @@ export const ListViewItem = observer((props: ListViewItemProps) => {
   const closeItemDialog = () => {
     setIsItemDialogOpen(false);
   };
-
-  if (!reducedItemStack.itemDetails) {
-    return null;
-  }
 
   const lore = reducedItemStack.itemDetails.lore;
 

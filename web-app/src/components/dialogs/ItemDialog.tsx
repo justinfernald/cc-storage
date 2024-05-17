@@ -16,10 +16,6 @@ export interface ItemDialogProps {
 export const ItemDialog = observer((props: ItemDialogProps) => {
   const { storageSystem, reducedItemStack, isOpen, onClose } = props;
 
-  if (!reducedItemStack.itemDetails) {
-    return null;
-  }
-
   return (
     <Dialog
       title={reducedItemStack.itemDetails.displayName}

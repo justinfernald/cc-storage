@@ -144,16 +144,51 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
   }
 
   get breakdown(): ItemMovementPackage {
-    switch (this.transferStrategy) {
-      case TransferStrategy.PLENTIFUL_FIRST:
-        return this.plentifulFirst();
-      case TransferStrategy.SCARCE_FIRST:
-        return this.scarceFirst();
-      case TransferStrategy.PROPORTIONAL:
-        return this.proportional();
-      case TransferStrategy.ROUND_ROBIN:
-        return this.roundRobin();
-    }
+    const calculateMoves = () => {
+      switch (this.transferStrategy) {
+        case TransferStrategy.PLENTIFUL_FIRST:
+          return this.plentifulFirst();
+        case TransferStrategy.SCARCE_FIRST:
+          return this.scarceFirst();
+        case TransferStrategy.PROPORTIONAL:
+          return this.proportional();
+        case TransferStrategy.ROUND_ROBIN:
+          return this.roundRobin();
+      }
+    };
+
+    const unfixedMoves = calculateMoves();
+
+    /** makes sures moves don't go past their stack size and are broken down into multiple of moves */
+    const fixMoves = () => {
+      const fixedMoves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
+
+      for (const move of unfixedMoves.moves) {
+        const { itemDetails } = this.props.reducedItemStack;
+
+        const maxStackSize = itemDetails.maxCount ?? 1;
+
+        const moveCount = move.quantity ?? 0;
+
+        const movesNeeded = Math.ceil(moveCount / maxStackSize);
+
+        for (let i = 0; i < movesNeeded; i++) {
+          const quantity = Math.min(maxStackSize, moveCount - i * maxStackSize);
+
+          fixedMoves.moves.push({
+            from: move.from,
+            to: move.to,
+            fromSlot: move.fromSlot,
+            toSlot: move.toSlot,
+            quantity,
+          });
+        }
+      }
+
+      return fixedMoves;
+    };
+
+    return fixMoves();
   }
 
   transfer() {
@@ -397,15 +432,11 @@ export interface ItemDeliveryViewProps {
 }
 
 export const ItemDeliveryView = observer((props: ItemDeliveryViewProps) => {
-  const { storageSystem, reducedItemStack } = props;
+  const { storageSystem } = props;
 
   const viewModel = useViewModelConstructor(ItemDeliveryViewModel, props);
 
   const { quantity, selectedStorage, showTransferBreakdown } = viewModel;
-
-  if (!reducedItemStack.itemDetails) {
-    return null;
-  }
 
   return (
     <div css={[flexColumn, { gap: 5 }]}>

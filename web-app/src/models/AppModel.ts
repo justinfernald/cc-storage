@@ -12,18 +12,12 @@ export class AppModel {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  setupAutoUpdate() {
-    setInterval(() => {
-      this.updateStorageSystemCollection();
-    }, 10_000);
-  }
-
   async fetchUpdate() {
     await this.apiService.fetchUpdate();
 
-    setTimeout(() => {
-      this.updateStorageSystemCollection();
-    }, 1_000);
+    // setTimeout(() => {
+    //   this.updateStorageSystemCollection();
+    // }, 1_000);
   }
 
   async updateStorageSystemCollection() {
@@ -41,8 +35,8 @@ export class AppModel {
   async moveItems(data: ItemMovementPackage) {
     await this.apiService.moveItems(data);
 
-    setTimeout(() => {
-      this.updateStorageSystemCollection();
-    }, 3_000);
+    // setTimeout(() => {
+    //   this.updateStorageSystemCollection();
+    // }, 3_000);
   }
 }

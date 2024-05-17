@@ -11,10 +11,6 @@ export interface ItemDetailsViewProps {
 export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
   const { storageSystem, reducedItemStack } = props;
 
-  if (!reducedItemStack.itemDetails) {
-    return null;
-  }
-
   // Item Display Name
   // Item Name
   // Total Item Count
@@ -112,10 +108,6 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
                 }
 
                 const storageAmount = storage.itemStacks.reduce((acc, item) => {
-                  if (!item.itemDetails) {
-                    return acc;
-                  }
-
                   if (item.name === reducedItemStack.name) {
                     return acc + item.count;
                   }
@@ -134,9 +126,6 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
                         <strong>Slots:</strong>
                         <div css={[{ paddingLeft: 10 }]}>
                           {storage.itemStacks.map((item) => {
-                            if (!item.itemDetails) {
-                              return null;
-                            }
                             if (item.name === reducedItemStack.name) {
                               return (
                                 <div key={item.slot}>
