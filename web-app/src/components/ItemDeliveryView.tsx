@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 
 import { flex, flexColumn } from '../styles';
-import { ItemMoves, StorageInfo, StorageSystem } from '../interfaces/types';
+import { ItemMovementPackage, StorageInfo, StorageSystem } from '../interfaces/types';
 import {
   Button,
   Callout,
@@ -38,6 +38,10 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
   constructor(props: ItemDeliveryViewModelProps) {
     super(props);
     makeSimpleAutoObservable(this, {}, { autoBind: true });
+  }
+
+  get systemName() {
+    return this.props.storageSystem.name;
   }
 
   get validForTransfer(): boolean {
@@ -139,7 +143,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     this.setTransferStrategy(event.target.value as TransferStrategy);
   }
 
-  get breakdown(): ItemMoves {
+  get breakdown(): ItemMovementPackage {
     switch (this.transferStrategy) {
       case TransferStrategy.PLENTIFUL_FIRST:
         return this.plentifulFirst();
@@ -162,16 +166,16 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     appModel.apiService.moveItems(this.breakdown);
   }
 
-  plentifulFirst(): ItemMoves {
+  plentifulFirst(): ItemMovementPackage {
     if (!this.selectedStorage || !this.otherGroupedStorageSlots) {
-      return { moves: [] };
+      return { systemName: this.systemName, moves: [] };
     }
 
     const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
 
     otherGroupedStorageSlots.sort((a, b) => b.count - a.count);
 
-    const moves: ItemMoves = { moves: [] };
+    const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
     let remaining = this.quantity;
 
@@ -200,16 +204,16 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     return moves;
   }
 
-  scarceFirst(): ItemMoves {
+  scarceFirst(): ItemMovementPackage {
     if (!this.selectedStorage || !this.otherGroupedStorageSlots) {
-      return { moves: [] };
+      return { systemName: this.systemName, moves: [] };
     }
 
     const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
 
     otherGroupedStorageSlots.sort((a, b) => a.count - b.count);
 
-    const moves: ItemMoves = { moves: [] };
+    const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
     let remaining = this.quantity;
 
@@ -238,16 +242,16 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     return moves;
   }
 
-  proportional(): ItemMoves {
+  proportional(): ItemMovementPackage {
     if (!this.selectedStorage || !this.otherGroupedStorageSlots) {
-      return { moves: [] };
+      return { systemName: this.systemName, moves: [] };
     }
 
     const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
 
     const totalItemCount = otherGroupedStorageSlots.reduce((acc, s) => acc + s.count, 0);
 
-    const moves: ItemMoves = { moves: [] };
+    const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
     let remaining = this.quantity;
 
@@ -280,12 +284,12 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
   }
 
   // take from each storage in a round-robin fashion until quantity is reached
-  roundRobin(): ItemMoves {
+  roundRobin(): ItemMovementPackage {
     if (!this.selectedStorage || !this.otherGroupedStorageSlots) {
-      return { moves: [] };
+      return { systemName: this.systemName, moves: [] };
     }
 
-    const moves: ItemMoves = { moves: [] };
+    const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
     const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
 
@@ -349,7 +353,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     }
 
     // group moves together by storage / slot
-    const finalMoves: ItemMoves = { moves: [] };
+    const finalMoves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
     for (const move of moves.moves) {
       const existingMove = finalMoves.moves.find(
@@ -372,7 +376,7 @@ interface SummarizedMove {
   count: number;
 }
 
-function summarizeMoves(moves: ItemMoves): SummarizedMove[] {
+function summarizeMoves(moves: ItemMovementPackage): SummarizedMove[] {
   // group storages and sum up their counts
   const storageCounts = new Map<string, number>();
 

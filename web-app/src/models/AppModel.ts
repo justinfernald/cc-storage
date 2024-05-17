@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { apiUrl } from '../config';
-import { StorageSystem, ItemMoves } from '../interfaces/types';
+import { StorageSystem, ItemMovementPackage } from '../interfaces/types';
 import { APIService } from './APIService';
 
 export class AppModel {
@@ -10,6 +10,12 @@ export class AppModel {
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
+  }
+
+  setupAutoUpdate() {
+    setInterval(() => {
+      this.updateStorageSystemCollection();
+    }, 10_000);
   }
 
   async fetchUpdate() {
@@ -32,7 +38,7 @@ export class AppModel {
     }
   }
 
-  async moveItems(data: ItemMoves) {
+  async moveItems(data: ItemMovementPackage) {
     await this.apiService.moveItems(data);
 
     setTimeout(() => {

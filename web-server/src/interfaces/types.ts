@@ -80,13 +80,20 @@ export interface ItemMove {
 }
 
 /** Represents multiple item move operations */
-export interface ItemMoves {
+export interface ItemMovementPackage {
+  systemName: string;
   moves: ItemMove[];
+}
+
+export enum ConnectionType {
+  COMPUTER = 'COMPUTER',
+  WEB_APP = 'WEB_APP',
 }
 
 /** Connection data - includes name of storage system */
 export interface ConnectionData {
   name: string;
+  type: ConnectionType;
 }
 
 export interface MessageC2SStructure {
@@ -101,12 +108,16 @@ export interface MessageS2CStructure {
 
 export interface MessageC2SPing extends MessageC2SStructure {
   type: MessageTypeComputerToServer.PING;
-  data: null;
+  data: {
+    time: number;
+  };
 }
 
 export interface MessageS2CPong extends MessageS2CStructure {
   type: MessageTypeServerToComputer.PONG;
-  data: null;
+  data: {
+    id: number;
+  };
 }
 
 export interface MessageC2SConnection extends MessageC2SStructure {
@@ -132,11 +143,15 @@ export interface MessageS2CInfo extends MessageS2CStructure {
 
 export interface MessageS2CMoveItems extends MessageS2CStructure {
   type: MessageTypeServerToComputer.MOVE_ITEMS;
-  data: ItemMoves;
+  data: ItemMovementPackage;
 }
 
 export type MessageC2S =
   | MessageC2SStorageSystemUpdate
   | MessageC2SPing
   | MessageC2SConnection;
-export type MessageS2C = MessageS2CFetchUpdate | MessageS2CInfo | MessageS2CMoveItems;
+export type MessageS2C =
+  | MessageS2CFetchUpdate
+  | MessageS2CInfo
+  | MessageS2CMoveItems
+  | MessageS2CPong;

@@ -1,4 +1,4 @@
-import { StorageSystem, ItemMoves } from '../interfaces/types';
+import { StorageSystem, ItemMovementPackage } from '../interfaces/types';
 
 export class APIService {
   constructor(public rootUrl: string) {}
@@ -27,7 +27,7 @@ export class APIService {
     return result.count;
   }
 
-  async moveItems(data: ItemMoves): Promise<boolean> {
+  async moveItems(data: ItemMovementPackage): Promise<boolean> {
     const result = await fetch(`${this.rootUrl}/moveItems`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -2,9 +2,10 @@ import * as fs from 'fs/promises';
 
 import express, { Request, Response } from 'express';
 import expressWs from 'express-ws';
+import * as ws from 'ws';
+
 import {
-  StorageSystemUpdate,
-  ItemMoves,
+  ItemMovementPackage,
   MessageC2S,
   MessageC2SStructure,
   MessageS2CFetchUpdate,
@@ -13,9 +14,11 @@ import {
   MessageTypeComputerToServer,
   MessageTypeServerToComputer,
   StorageSystem,
+  ConnectionData,
+  ConnectionType,
+  MessageS2CPong,
 } from './interfaces/types';
 import { sleep } from './utils';
-import { it } from 'node:test';
 
 const appWs = expressWs(express());
 const app = appWs.app;
@@ -35,11 +38,18 @@ app.use((_req, res, next) => {
   next();
 });
 
+const connections: Map<string, { ws: ws; connectionData: ConnectionData }> = new Map();
+
 app.ws('/ws', (ws, req) => {
+  let name: string | null = null;
   console.log('Client connected');
 
   ws.addEventListener('close', () => {
     console.log('Client disconnected');
+
+    if (name) {
+      connections.delete(name);
+    }
   });
 
   ws.on('message', async (msg) => {
@@ -62,12 +72,20 @@ app.ws('/ws', (ws, req) => {
         ws.send(
           JSON.stringify({
             type: MessageTypeServerToComputer.PONG,
-            data: null,
-          }),
+            data: {
+              id: message.data.time,
+            },
+          } satisfies MessageS2CPong),
         );
       }
 
       if (message.type === MessageTypeComputerToServer.CONNECTION) {
+        const data = message.data;
+
+        name = data.name;
+
+        connections.set(data.name, { ws, connectionData: data });
+
         ws.send(
           JSON.stringify({
             type: MessageTypeServerToComputer.INFO,
@@ -151,9 +169,19 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello World with TypeScript!');
 });
 
-app.get('/connectionCount', (req: Request, res: Response) => {
+app.get('/connectedComputers', (req: Request, res: Response) => {
   // send back the number of connected clients
-  res.json({ count: appWs.getWss().clients.size });
+  const connectionsData = Array.from(connections.values()).map(
+    (connection) => connection.connectionData,
+  );
+
+  const filteredConnections = connectionsData.filter(
+    (connectionData) => connectionData.type === ConnectionType.COMPUTER,
+  );
+
+  res.json({
+    connections: filteredConnections,
+  });
 });
 
 app.get('/storageData', async (req: Request, res: Response) => {
@@ -186,13 +214,25 @@ app.get('/storageSystems/:name', async (req: Request, res: Response) => {
 });
 
 function fetchUpdate() {
-  appWs.getWss().clients.forEach((client) => {
-    const message: MessageS2CFetchUpdate = {
-      type: MessageTypeServerToComputer.FETCH_UPDATE,
-      data: null,
-    };
+  const connectionsData = Array.from(connections.values()).map(
+    (connection) => connection.connectionData,
+  );
 
-    client.send(JSON.stringify(message));
+  const filteredConnections = connectionsData.filter(
+    (connectionData) => connectionData.type === ConnectionType.WEB_APP,
+  );
+
+  filteredConnections.forEach((connectionData) => {
+    const connection = connections.get(connectionData.name);
+
+    if (connection) {
+      const message: MessageS2CFetchUpdate = {
+        type: MessageTypeServerToComputer.FETCH_UPDATE,
+        data: null,
+      };
+
+      connection.ws.send(JSON.stringify(message));
+    }
   });
 }
 
@@ -203,19 +243,33 @@ app.get('/fetchUpdate', async (req: Request, res: Response) => {
   res.json({ message: 'Sent fetch update to all clients' });
 });
 
-function moveItems(itemMoves: ItemMoves) {
-  appWs.getWss().clients.forEach((client) => {
-    const message: MessageS2CMoveItems = {
-      type: MessageTypeServerToComputer.MOVE_ITEMS,
-      data: itemMoves,
-    };
+function moveItems(itemMoves: ItemMovementPackage) {
+  const connectionsData = Array.from(connections.values()).map(
+    (connection) => connection.connectionData,
+  );
 
-    client.send(JSON.stringify(message));
-  });
+  const computer = connectionsData.find(
+    (connectionData) =>
+      connectionData.type === ConnectionType.COMPUTER &&
+      connectionData.name === itemMoves.systemName,
+  );
+
+  if (computer) {
+    const connection = connections.get(computer.name);
+
+    if (connection) {
+      const message: MessageS2CMoveItems = {
+        type: MessageTypeServerToComputer.MOVE_ITEMS,
+        data: itemMoves,
+      };
+
+      connection.ws.send(JSON.stringify(message));
+    }
+  }
 }
 
 app.post('/moveItems', async (req: Request, res: Response) => {
-  const itemMoves: ItemMoves = req.body;
+  const itemMoves: ItemMovementPackage = req.body;
 
   await moveItems(itemMoves);
   await sleep(2000);

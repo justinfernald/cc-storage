@@ -19,7 +19,6 @@ local function findAllInventories()
   local inventories = {}
   peripheral.find("inventory", function(name, inventory)
     local inventoryList = inventory.list()
-    local size = inventoryList
     local itemStacks = {}
 
     for slot, undetailedItem in pairs(inventoryList) do
@@ -37,7 +36,7 @@ local function findAllInventories()
 
     table.insert(inventories, {
       name = name,
-      metaData = { size = size },
+      metaData = { size = #inventoryList },
       itemStacks = itemStacks
     })
   end)
@@ -63,10 +62,31 @@ local function gatherInventoryData()
   return textutils.serializeJSON(message)
 end
 
+local previousInventoryData = nil
+
 -- Send JSON data over WebSocket
 local function sendInventoryUpdate(ws)
   local jsonString = gatherInventoryData()
+
+  if jsonString == previousInventoryData then
+    print("No changes in inventory data.")
+    return
+  end
+
+  previousInventoryData = jsonString
+
   ws.send(jsonString)
+end
+
+-- Send a ping message to the server
+local function sendPingMessage(ws)
+  local message = {
+    type = "PING",
+    data = {
+      time = os.epoch("utc")
+    }
+  }
+  ws.send(textutils.serializeJSON(message))
 end
 
 -- Move items between inventories
@@ -93,7 +113,8 @@ local function sendConnectionMessage(ws)
   local message = {
     type = "CONNECTION",
     data = {
-      name = computerName
+      name = computerName,
+      type = "COMPUTER"
     }
   }
   ws.send(textutils.serializeJSON(message))
@@ -114,24 +135,33 @@ local function handleWebSocketMessage(ws, message)
   end
 end
 
--- Function to establish and maintain WebSocket connection
-local function connectWebSocket()
+-- Function to maintain WebSocket connection
+local function manageWebSocketConnection()
   while true do
     local ws, err = http.websocket(wsUrl)
     if ws then
       print("Connected to WebSocket.")
       sendConnectionMessage(ws)
-      while true do
-        local event, url, message = os.pullEvent()
-        if event == "websocket_message" and url == wsUrl then
-          handleWebSocketMessage(ws, message)
-        elseif event == "websocket_closed" and url == wsUrl then
-          print("WebSocket connection closed. Reconnecting...")
-          ws.close()
-          break
+      sendInventoryUpdate(ws)
+
+      local function websocketHandler()
+        while true do
+          local event, url, message = os.pullEvent("websocket_message")
+          if url == wsUrl then
+            handleWebSocketMessage(ws, message)
+          end
         end
-        -- sleep(0.1)
       end
+
+      local function periodicTasks()
+        while true do
+          sendPingMessage(ws)
+          sendInventoryUpdate(ws)
+          sleep(15) -- Wait 15 seconds before the next update
+        end
+      end
+
+      parallel.waitForAny(websocketHandler, periodicTasks)
     else
       print("Failed to connect to WebSocket: " .. err)
       sleep(5) -- Wait before retrying
@@ -139,5 +169,5 @@ local function connectWebSocket()
   end
 end
 
--- Start WebSocket connection
-connectWebSocket()
+-- Start WebSocket connection management
+manageWebSocketConnection()
