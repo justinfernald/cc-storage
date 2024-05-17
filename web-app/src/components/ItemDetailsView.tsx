@@ -29,17 +29,9 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
   // total amount for storage
   // slots in storage and amount
 
-  let lore = reducedItemStack.itemDetails.lore;
+  const lore = reducedItemStack.itemDetails.lore;
 
-  if (!Array.isArray(lore)) {
-    lore = null;
-  }
-
-  let enchantments = reducedItemStack.itemDetails.enchantments;
-
-  if (!Array.isArray(enchantments)) {
-    enchantments = null;
-  }
+  const enchantments = reducedItemStack.itemDetails.enchantments;
 
   const tagsList = Object.entries(reducedItemStack.itemDetails.tags)
     .filter(([_tag, value]) => value)
@@ -106,7 +98,7 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
               .filter((storage) => {
                 // only include if it has item
 
-                if (!storage.itemStacks || !Array.isArray(storage.itemStacks)) {
+                if (!storage.itemStacks) {
                   return false;
                 }
 
@@ -115,7 +107,7 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
                 );
               })
               .map((storage) => {
-                if (!storage.itemStacks || !Array.isArray(storage.itemStacks)) {
+                if (!storage.itemStacks) {
                   return null;
                 }
 

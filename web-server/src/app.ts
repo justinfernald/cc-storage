@@ -15,6 +15,7 @@ import {
   StorageSystem,
 } from './interfaces/types';
 import { sleep } from './utils';
+import { it } from 'node:test';
 
 const appWs = expressWs(express());
 const app = appWs.app;
@@ -83,9 +84,46 @@ app.ws('/ws', (ws, req) => {
         // keep only alphanumeric characters
         const hashedSystemName = systemName.replace(/[^a-zA-Z0-9]/g, '');
 
+        const fixedData: StorageSystem = {
+          name: systemName,
+          storages: data.storageSystem.storages.map((storage) => ({
+            name: storage.name,
+            metaData: storage.metaData,
+            itemStacks: Array.isArray(storage.itemStacks)
+              ? storage.itemStacks.map((itemStack) => ({
+                  name: itemStack.name,
+                  nbtHash: itemStack.nbtHash,
+                  slot: itemStack.slot,
+                  count: itemStack.count,
+                  itemDetails: {
+                    displayName: itemStack.itemDetails.displayName,
+                    lore: itemStack.itemDetails.lore
+                      ? Array.isArray(itemStack.itemDetails.lore)
+                        ? itemStack.itemDetails.lore
+                        : null
+                      : null,
+                    durability: itemStack.itemDetails.durability,
+                    maxCount: itemStack.itemDetails.maxCount,
+                    maxDamage: itemStack.itemDetails.maxDamage,
+                    enchantments: itemStack.itemDetails.enchantments
+                      ? Array.isArray(itemStack.itemDetails.enchantments)
+                        ? itemStack.itemDetails.enchantments.map((enchantment) => ({
+                            displayName: enchantment.displayName,
+                            level: enchantment.level,
+                            name: enchantment.name,
+                          }))
+                        : null
+                      : null,
+                    tags: itemStack.itemDetails.tags,
+                  },
+                }))
+              : [],
+          })),
+        };
+
         await fs.writeFile(
           `storage-systems-data/${hashedSystemName}.json`,
-          JSON.stringify(data.storageSystem),
+          JSON.stringify(fixedData),
           'utf-8',
         );
 

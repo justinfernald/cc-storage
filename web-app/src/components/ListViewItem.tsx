@@ -35,17 +35,9 @@ export const ListViewItem = observer((props: ListViewItemProps) => {
     return null;
   }
 
-  let lore = reducedItemStack.itemDetails.lore;
+  const lore = reducedItemStack.itemDetails.lore;
 
-  if (!Array.isArray(lore)) {
-    lore = null;
-  }
-
-  let enchantments = reducedItemStack.itemDetails.enchantments;
-
-  if (!Array.isArray(enchantments)) {
-    enchantments = null;
-  }
+  const enchantments = reducedItemStack.itemDetails.enchantments;
 
   return (
     <>

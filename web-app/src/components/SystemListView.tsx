@@ -22,7 +22,7 @@ export const SystemListView = observer((props: SystemListViewProps) => {
     >();
 
     for (const storage of system.storages) {
-      if (!storage.itemStacks || !Array.isArray(storage.itemStacks)) {
+      if (!storage.itemStacks) {
         continue;
       }
 
@@ -137,10 +137,7 @@ export function filterReducedItemStack(
         }
         break;
       case SearchTag.ENCHANTMENTS:
-        if (
-          reducedItemStack.itemDetails.enchantments === null ||
-          !Array.isArray(reducedItemStack.itemDetails.enchantments)
-        ) {
+        if (reducedItemStack.itemDetails.enchantments === null) {
           break;
         }
 
@@ -155,10 +152,7 @@ export function filterReducedItemStack(
         }
         break;
       case SearchTag.LORE:
-        if (
-          reducedItemStack.itemDetails.lore === null ||
-          !Array.isArray(reducedItemStack.itemDetails.lore)
-        ) {
+        if (reducedItemStack.itemDetails.lore === null) {
           break;
         }
 

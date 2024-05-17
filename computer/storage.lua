@@ -114,25 +114,30 @@ local function handleWebSocketMessage(ws, message)
   end
 end
 
--- Establish WebSocket connection and listen for messages
-local function listenWebSocket()
-  local ws, err = http.websocket(wsUrl)
-  if not ws then
-    print("Failed to connect to WebSocket: " .. err)
-    return
-  end
-
-  sendConnectionMessage(ws)
-
+-- Function to establish and maintain WebSocket connection
+local function connectWebSocket()
   while true do
-    local event, url, message = os.pullEvent("websocket_message")
-    if url == wsUrl then
-      handleWebSocketMessage(ws, message)
+    local ws, err = http.websocket(wsUrl)
+    if ws then
+      print("Connected to WebSocket.")
+      sendConnectionMessage(ws)
+      while true do
+        local event, url, message = os.pullEvent()
+        if event == "websocket_message" and url == wsUrl then
+          handleWebSocketMessage(ws, message)
+        elseif event == "websocket_closed" and url == wsUrl then
+          print("WebSocket connection closed. Reconnecting...")
+          ws.close()
+          break
+        end
+        -- sleep(0.1)
+      end
+    else
+      print("Failed to connect to WebSocket: " .. err)
+      sleep(5) -- Wait before retrying
     end
-
-    sleep(0.1)
   end
 end
 
--- Start listening for WebSocket messages
-listenWebSocket()
+-- Start WebSocket connection
+connectWebSocket()
