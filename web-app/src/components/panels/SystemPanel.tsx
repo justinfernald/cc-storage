@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import { fullSize, padding } from '../../styles';
+import { fullSize } from '../../styles';
 import { StorageSystem } from '../../interfaces/types';
 import { SystemDisplay } from '../../components/SystemDisplay';
 import { PanelInfo } from './PanelManager';

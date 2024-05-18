@@ -559,7 +559,7 @@ const filterInventoryLocationListItem: ItemPredicate<StorageInfo> = (
 
 const renderInventoryLocationListItem: ItemRenderer<StorageInfo> = (
   storageInfo,
-  { handleClick, handleFocus, modifiers, query },
+  { handleClick, handleFocus, modifiers },
 ) => {
   if (!modifiers.matchesPredicate) {
     return null;

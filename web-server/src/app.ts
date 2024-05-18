@@ -11,12 +11,14 @@ import {
   MessageS2CFetchUpdate,
   MessageS2CInfo,
   MessageS2CMoveItems,
-  MessageTypeComputerToServer,
-  MessageTypeServerToComputer,
   StorageSystem,
   ConnectionData,
   ConnectionType,
   MessageS2CPong,
+  MessageS2CStorageSystemUpdate,
+  MessageTypeServerToClient,
+  StorageSystemUpdate,
+  MessageTypeClientToServer,
 } from './interfaces/types';
 import { sleep } from './utils';
 
@@ -26,7 +28,7 @@ const app = appWs.app;
 const port: number = 3000;
 
 function isMessageC2S(message: MessageC2SStructure): message is MessageC2S {
-  return Object.values(MessageTypeComputerToServer).includes(message.type);
+  return Object.values(MessageTypeClientToServer).includes(message.type);
 }
 
 app.use(express.json());
@@ -40,7 +42,7 @@ app.use((_req, res, next) => {
 
 const connections: Map<string, { ws: ws; connectionData: ConnectionData }> = new Map();
 
-app.ws('/ws', (ws, req) => {
+app.ws('/ws', (ws) => {
   let name: string | null = null;
   console.log('Client connected');
 
@@ -61,17 +63,17 @@ app.ws('/ws', (ws, req) => {
       if (!isMessageC2S(message)) {
         ws.send(
           JSON.stringify({
-            type: MessageTypeServerToComputer.INFO,
+            type: MessageTypeServerToClient.INFO,
             code: 400,
             data: 'Invalid message type',
           } satisfies MessageS2CInfo),
         );
       }
 
-      if (message.type === MessageTypeComputerToServer.PING) {
+      if (message.type === MessageTypeClientToServer.PING) {
         ws.send(
           JSON.stringify({
-            type: MessageTypeServerToComputer.PONG,
+            type: MessageTypeServerToClient.PONG,
             data: {
               id: message.data.time,
             },
@@ -79,7 +81,7 @@ app.ws('/ws', (ws, req) => {
         );
       }
 
-      if (message.type === MessageTypeComputerToServer.CONNECTION) {
+      if (message.type === MessageTypeClientToServer.CONNECTION) {
         const data = message.data;
 
         name = data.name;
@@ -88,14 +90,14 @@ app.ws('/ws', (ws, req) => {
 
         ws.send(
           JSON.stringify({
-            type: MessageTypeServerToComputer.INFO,
+            type: MessageTypeServerToClient.INFO,
             code: 200,
             data: 'Connection established',
           } satisfies MessageS2CInfo),
         );
       }
 
-      if (message.type === MessageTypeComputerToServer.STORAGE_SYSTEM_UPDATE) {
+      if (message.type === MessageTypeClientToServer.STORAGE_SYSTEM_UPDATE) {
         const data = message.data;
         const systemName = data.storageSystem.name;
 
@@ -147,16 +149,18 @@ app.ws('/ws', (ws, req) => {
 
         ws.send(
           JSON.stringify({
-            type: MessageTypeServerToComputer.INFO,
+            type: MessageTypeServerToClient.INFO,
             code: 200,
             data: 'Inventory data updated',
           } satisfies MessageS2CInfo),
         );
+
+        updateClients({ updateTime: data.updateTime, storageSystem: fixedData });
       }
     } catch (e) {
       ws.send(
         JSON.stringify({
-          type: MessageTypeServerToComputer.INFO,
+          type: MessageTypeServerToClient.INFO,
           code: 400,
           data: 'Invalid message format, unable to parse JSON',
         }),
@@ -164,6 +168,29 @@ app.ws('/ws', (ws, req) => {
     }
   });
 });
+
+function updateClients(storageSystemUpdate: StorageSystemUpdate) {
+  const connectionsData = Array.from(connections.values()).map(
+    (connection) => connection.connectionData,
+  );
+
+  const filteredConnections = connectionsData.filter(
+    (connectionData) => connectionData.type === ConnectionType.WEB_APP,
+  );
+
+  filteredConnections.forEach((connectionData) => {
+    const connection = connections.get(connectionData.name);
+
+    if (connection) {
+      const message: MessageS2CStorageSystemUpdate = {
+        type: MessageTypeServerToClient.STORAGE_SYSTEM_UPDATE,
+        data: storageSystemUpdate,
+      };
+
+      connection.ws.send(JSON.stringify(message));
+    }
+  });
+}
 
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello World with TypeScript!');
@@ -227,7 +254,7 @@ function fetchUpdate() {
 
     if (connection) {
       const message: MessageS2CFetchUpdate = {
-        type: MessageTypeServerToComputer.FETCH_UPDATE,
+        type: MessageTypeServerToClient.FETCH_UPDATE,
         data: null,
       };
 
@@ -259,7 +286,7 @@ function moveItems(itemMoves: ItemMovementPackage) {
 
     if (connection) {
       const message: MessageS2CMoveItems = {
-        type: MessageTypeServerToComputer.MOVE_ITEMS,
+        type: MessageTypeServerToClient.MOVE_ITEMS,
         data: itemMoves,
       };
 

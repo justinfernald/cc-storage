@@ -46,6 +46,7 @@ export const SystemDisplay = observer((props: SystemDisplayProps) => {
                 <Popover
                   interactionKind="click"
                   content={<FilterSelector viewModel={filterSelectorViewModel} />}
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   renderTarget={({ isOpen, ...targetProps }) => (
                     <Button {...targetProps} minimal icon="filter-list" />
                   )}

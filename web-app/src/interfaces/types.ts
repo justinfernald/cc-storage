@@ -1,14 +1,15 @@
-export enum MessageTypeComputerToServer {
+export enum MessageTypeClientToServer {
   CONNECTION = 'CONNECTION',
   STORAGE_SYSTEM_UPDATE = 'STORAGE_SYSTEM_UPDATE',
   PING = 'PING',
 }
 
-export enum MessageTypeServerToComputer {
+export enum MessageTypeServerToClient {
   FETCH_UPDATE = 'FETCH_UPDATE',
   MOVE_ITEMS = 'MOVE_ITEMS',
   INFO = 'INFO',
   PONG = 'PONG',
+  STORAGE_SYSTEM_UPDATE = 'STORAGE_SYSTEM_UPDATE',
 }
 
 /** Represents a whole storage system */
@@ -97,52 +98,57 @@ export interface ConnectionData {
 }
 
 export interface MessageC2SStructure {
-  type: MessageTypeComputerToServer;
+  type: MessageTypeClientToServer;
   data: unknown;
 }
 
 export interface MessageS2CStructure {
-  type: MessageTypeServerToComputer;
+  type: MessageTypeServerToClient;
   data: unknown;
 }
 
 export interface MessageC2SPing extends MessageC2SStructure {
-  type: MessageTypeComputerToServer.PING;
+  type: MessageTypeClientToServer.PING;
   data: {
     time: number;
   };
 }
 
 export interface MessageS2CPong extends MessageS2CStructure {
-  type: MessageTypeServerToComputer.PONG;
+  type: MessageTypeServerToClient.PONG;
   data: {
     id: number;
   };
 }
 
 export interface MessageC2SConnection extends MessageC2SStructure {
-  type: MessageTypeComputerToServer.CONNECTION;
+  type: MessageTypeClientToServer.CONNECTION;
   data: ConnectionData;
 }
 
 export interface MessageC2SStorageSystemUpdate extends MessageC2SStructure {
-  type: MessageTypeComputerToServer.STORAGE_SYSTEM_UPDATE;
+  type: MessageTypeClientToServer.STORAGE_SYSTEM_UPDATE;
+  data: StorageSystemUpdate;
+}
+
+export interface MessageS2CStorageSystemUpdate extends MessageS2CStructure {
+  type: MessageTypeServerToClient.STORAGE_SYSTEM_UPDATE;
   data: StorageSystemUpdate;
 }
 
 export interface MessageS2CFetchUpdate extends MessageS2CStructure {
-  type: MessageTypeServerToComputer.FETCH_UPDATE;
+  type: MessageTypeServerToClient.FETCH_UPDATE;
   data: null;
 }
 
 export interface MessageS2CInfo extends MessageS2CStructure {
-  type: MessageTypeServerToComputer.INFO;
+  type: MessageTypeServerToClient.INFO;
   code: number;
   data: string;
 }
 
 export interface MessageS2CMoveItems extends MessageS2CStructure {
-  type: MessageTypeServerToComputer.MOVE_ITEMS;
+  type: MessageTypeServerToClient.MOVE_ITEMS;
   data: ItemMovementPackage;
 }
 
@@ -154,4 +160,5 @@ export type MessageS2C =
   | MessageS2CFetchUpdate
   | MessageS2CInfo
   | MessageS2CMoveItems
-  | MessageS2CPong;
+  | MessageS2CPong
+  | MessageS2CStorageSystemUpdate;

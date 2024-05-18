@@ -146,17 +146,27 @@ local function manageWebSocketConnection()
 
       local function websocketHandler()
         while true do
-          local event, url, message = os.pullEvent("websocket_message")
-          if url == wsUrl then
-            handleWebSocketMessage(ws, message)
+          local success, event, url, message = pcall(os.pullEvent, "websocket_message")
+          if success and url == wsUrl then
+            local success, err = pcall(handleWebSocketMessage, ws, message)
+            if not success then
+              print("Error handling WebSocket message: " .. err)
+            end
+          elseif not success then
+            print("Error pulling WebSocket message: " .. event) -- event contains the error message
           end
         end
       end
 
       local function periodicTasks()
         while true do
-          sendPingMessage(ws)
-          sendInventoryUpdate(ws)
+          local success, err = pcall(function()
+            sendPingMessage(ws)
+            sendInventoryUpdate(ws)
+          end)
+          if not success then
+            print("Error during periodic tasks: " .. err)
+          end
           sleep(15) -- Wait 15 seconds before the next update
         end
       end
@@ -170,4 +180,4 @@ local function manageWebSocketConnection()
 end
 
 -- Start WebSocket connection management
-manageWebSocketConnection()
+pcall(manageWebSocketConnection)
