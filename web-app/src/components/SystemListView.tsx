@@ -6,22 +6,27 @@ import { FilterInfo, SearchTag, SortDirection } from '../interfaces/item-filter-
 import { ReducedItemStack } from '../interfaces/extra-types';
 import { flexColumn, padding } from '../styles';
 import { ListViewItem } from './ListViewItem';
+import { BaseViewModel } from '../utils/mobx/ViewModel';
+import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 
-export interface SystemListViewProps {
+interface SystemListViewModelProps {
   system: StorageSystem;
   filterInfo: FilterInfo;
 }
 
-export const SystemListView = observer((props: SystemListViewProps) => {
-  const { system, filterInfo } = props;
+class SystemListViewModel extends BaseViewModel<SystemListViewModelProps> {
+  constructor(props: SystemListViewModelProps) {
+    super(props);
+    makeSimpleAutoObservable(this, {}, { autoBind: true });
+  }
 
-  const reducedItems = useMemo(() => {
+  get reducedItems() {
     const itemStacksWithStorageMap = new Map<
       string,
       { storageName: string; itemStack: ItemStack }[]
     >();
 
-    for (const storage of system.storages) {
+    for (const storage of this.props.system.storages) {
       if (!storage.itemStacks) {
         continue;
       }
@@ -72,7 +77,23 @@ export const SystemListView = observer((props: SystemListViewProps) => {
     }
 
     return Array.from(reducedItemsMap.values());
-  }, [system, filterInfo]);
+  }
+}
+
+export interface SystemListViewProps {
+  system: StorageSystem;
+  filterInfo: FilterInfo;
+}
+
+export const SystemListView = observer((props: SystemListViewProps) => {
+  const { system, filterInfo } = props;
+
+  const viewModel = useMemo(
+    () => new SystemListViewModel({ system, filterInfo }),
+    [system, filterInfo],
+  );
+
+  const reducedItems = viewModel.reducedItems;
 
   return (
     <div css={[flexColumn, { gap: 5 }, padding('md')]}>

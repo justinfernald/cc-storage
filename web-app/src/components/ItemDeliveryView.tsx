@@ -16,6 +16,7 @@ import { ReducedItemStack, StorageSlotInfo } from '../interfaces/extra-types';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 import { appModel } from '../App';
+import { action } from 'mobx';
 
 interface ItemDeliveryViewModelProps {
   storageSystem: StorageSystem;
@@ -40,12 +41,26 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     makeSimpleAutoObservable(this, {}, { autoBind: true });
   }
 
+  get safeQuantity() {
+    if (this.quantity < 0) {
+      return 0;
+    }
+
+    if (!this.itemCountInOtherStorages) {
+      return 0;
+    } else if (this.quantity > this.itemCountInOtherStorages) {
+      return this.itemCountInOtherStorages;
+    }
+
+    return this.quantity;
+  }
+
   get systemName() {
     return this.props.storageSystem.name;
   }
 
   get validForTransfer(): boolean {
-    return this.selectedStorage !== null && this.quantity > 0;
+    return this.selectedStorage !== null && this.safeQuantity > 0;
   }
 
   get selectedStorageSlots() {
@@ -124,14 +139,6 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
   }
 
   setQuantity(quantity: number) {
-    if (quantity < 1) {
-      quantity = 1;
-    } else if (!this.itemCountInOtherStorages) {
-      quantity = 1;
-    } else if (quantity > this.itemCountInOtherStorages) {
-      quantity = this.itemCountInOtherStorages;
-    }
-
     this.quantity = quantity;
   }
 
@@ -212,7 +219,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
 
     const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
-    let remaining = this.quantity;
+    let remaining = this.safeQuantity;
 
     for (const groupedStorageSlots of otherGroupedStorageSlots) {
       for (const slot of groupedStorageSlots.slotInfo) {
@@ -250,7 +257,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
 
     const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
-    let remaining = this.quantity;
+    let remaining = this.safeQuantity;
 
     for (const groupedStorageSlots of otherGroupedStorageSlots) {
       for (const slot of groupedStorageSlots.slotInfo) {
@@ -288,7 +295,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
 
     const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
-    let remaining = this.quantity;
+    let remaining = this.safeQuantity;
 
     for (const groupedStorageSlots of otherGroupedStorageSlots) {
       for (const slot of groupedStorageSlots.slotInfo) {
@@ -340,7 +347,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
       }),
     );
 
-    let remaining = this.quantity;
+    let remaining = this.safeQuantity;
 
     while (remaining > 0) {
       for (const storage of copiedStorages) {
@@ -467,8 +474,21 @@ export const ItemDeliveryView = observer((props: ItemDeliveryViewProps) => {
               fill
               value={quantity}
               onValueChange={viewModel.setQuantity}
+              onBlur={action(() => {
+                if (quantity < 1) {
+                  viewModel.setQuantity(1);
+                }
+
+                const itemCountInOtherStorages = viewModel.itemCountInOtherStorages;
+
+                if (!itemCountInOtherStorages) {
+                  viewModel.setQuantity(0);
+                } else if (quantity > itemCountInOtherStorages) {
+                  viewModel.setQuantity(itemCountInOtherStorages);
+                }
+              })}
               stepSize={1}
-              min={1}
+              min={0}
               // intentionally using || to catch if value is 0
               max={viewModel.itemCountInOtherStorages || undefined}
             />

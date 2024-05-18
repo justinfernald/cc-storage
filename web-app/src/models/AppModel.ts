@@ -12,7 +12,7 @@ export class AppModel {
   apiService = new APIService(apiUrl);
   wsService = new WSService(wsUrl);
 
-  storageSystems: Map<string, StorageSystem> | null = null;
+  storageSystems = new Map<string, StorageSystem>();
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -27,7 +27,14 @@ export class AppModel {
   }
 
   updateHandler(data: StorageSystemUpdate) {
-    this.storageSystems?.set(data.storageSystem.name, data.storageSystem);
+    const system = this.storageSystems.get(data.storageSystem.name);
+    if (system) {
+      console.log('Updating storage system:', data.storageSystem.name);
+      system.storages = data.storageSystem.storages;
+    } else {
+      console.log('Adding new storage system:', data.storageSystem.name);
+      this.storageSystems.set(data.storageSystem.name, data.storageSystem);
+    }
   }
 
   async fetchUpdate() {

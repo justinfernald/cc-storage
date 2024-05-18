@@ -99,7 +99,9 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
                 }
 
                 return storage.itemStacks.some(
-                  (item) => item.name === reducedItemStack.name,
+                  (item) =>
+                    item.name === reducedItemStack.name &&
+                    item.nbtHash === reducedItemStack.nbtHash,
                 );
               })
               .map((storage) => {
@@ -108,7 +110,10 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
                 }
 
                 const storageAmount = storage.itemStacks.reduce((acc, item) => {
-                  if (item.name === reducedItemStack.name) {
+                  if (
+                    item.name === reducedItemStack.name &&
+                    item.nbtHash === reducedItemStack.nbtHash
+                  ) {
                     return acc + item.count;
                   }
 
@@ -126,7 +131,10 @@ export const ItemDetailsView = observer((props: ItemDetailsViewProps) => {
                         <strong>Slots:</strong>
                         <div css={[{ paddingLeft: 10 }]}>
                           {storage.itemStacks.map((item) => {
-                            if (item.name === reducedItemStack.name) {
+                            if (
+                              item.name === reducedItemStack.name &&
+                              item.nbtHash === reducedItemStack.nbtHash
+                            ) {
                               return (
                                 <div key={item.slot}>
                                   <strong>{item.slot}: </strong>

@@ -39,7 +39,7 @@ export class WSService {
   }
 
   onMessage(msg: MessageEvent) {
-    console.log('Received message:', msg.data);
+    // console.log('Received message:', msg.data);
 
     const message: MessageS2C = JSON.parse(msg.data);
 
