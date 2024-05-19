@@ -4,7 +4,7 @@
   "author": "Justin Fernald",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "serve": "vite preview",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",

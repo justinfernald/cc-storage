@@ -2,6 +2,7 @@ import * as fs from 'fs/promises';
 
 import express, { Request, Response } from 'express';
 import expressWs from 'express-ws';
+
 import * as ws from 'ws';
 
 import {
@@ -19,8 +20,12 @@ import {
   MessageTypeServerToClient,
   StorageSystemUpdate,
   MessageTypeClientToServer,
+  InventoryInfo,
 } from './interfaces/types';
 import { sleep } from './utils';
+import { db } from './database/database';
+import { storages } from './database/schema';
+import { eq } from 'drizzle-orm';
 
 const appWs = expressWs(express());
 const app = appWs.app;
@@ -303,6 +308,47 @@ app.post('/moveItems', async (req: Request, res: Response) => {
   await fetchUpdate();
 
   res.json({ message: 'Sent move items to all clients' });
+});
+
+// used to set the inventory info for a specific inventory
+app.post('/inventoryInfo', async (req: Request, res: Response) => {
+  const data: InventoryInfo = req.body;
+
+  const { name, ...updatedData } = data;
+
+  // insert or update the inventory info in the db
+  await db
+    .insert(storages)
+    .values({
+      name: name,
+      ...updatedData,
+    })
+    .onConflictDoUpdate({ target: [storages.name], set: updatedData });
+
+  res.json({ message: 'Inventory info updated' });
+});
+
+app.get('/inventoryInfo/:name', async (req: Request, res: Response) => {
+  const name = req.params.name;
+
+  const [data] = await db
+    .select()
+    .from(storages)
+    .where(eq(storages.name, name))
+    .execute();
+
+  if (!data) {
+    res.status(404).json({ message: 'Inventory info not found' });
+    return;
+  }
+
+  res.json(data satisfies InventoryInfo);
+});
+
+app.get('/inventoryInfo', async (_req: Request, res: Response) => {
+  const data: InventoryInfo[] = await db.select().from(storages).execute();
+
+  res.json(data);
 });
 
 app.listen(port, () => {

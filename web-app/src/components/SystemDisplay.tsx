@@ -25,12 +25,12 @@ export const SystemDisplay = observer((props: SystemDisplayProps) => {
         <ControlGroup css={[padding('md')]} fill={true} vertical={false}>
           <Button
             // disabled since box view is not complete
-            disabled
-            title="Disabled due to incomplete feature"
+            // disabled
+            // title="Disabled due to incomplete feature"
             icon={displayMode === SystemDisplayMode.LIST ? 'list' : 'box'}
-            // title={
-            //   displayMode === SystemDisplayMode.LIST ? 'List View' : 'Inventory View'
-            // }
+            title={
+              displayMode === SystemDisplayMode.LIST ? 'List View' : 'Inventory View'
+            }
             onClick={() => {
               setDisplayMode((mode) =>
                 mode === SystemDisplayMode.LIST

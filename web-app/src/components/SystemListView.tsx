@@ -1,12 +1,11 @@
 import { observer } from 'mobx-react-lite';
 
 import { ItemStack, StorageSystem } from '../interfaces/types';
-import { useMemo } from 'react';
 import { FilterInfo, SearchTag, SortDirection } from '../interfaces/item-filter-types';
 import { ReducedItemStack } from '../interfaces/extra-types';
 import { flexColumn, padding } from '../styles';
 import { ListViewItem } from './ListViewItem';
-import { BaseViewModel } from '../utils/mobx/ViewModel';
+import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 
 interface SystemListViewModelProps {
@@ -88,10 +87,7 @@ export interface SystemListViewProps {
 export const SystemListView = observer((props: SystemListViewProps) => {
   const { system, filterInfo } = props;
 
-  const viewModel = useMemo(
-    () => new SystemListViewModel({ system, filterInfo }),
-    [system, filterInfo],
-  );
+  const viewModel = useViewModelConstructor(SystemListViewModel, { system, filterInfo });
 
   const reducedItems = viewModel.reducedItems;
 

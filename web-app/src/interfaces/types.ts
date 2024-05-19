@@ -12,6 +12,16 @@ export enum MessageTypeServerToClient {
   STORAGE_SYSTEM_UPDATE = 'STORAGE_SYSTEM_UPDATE',
 }
 
+export interface InventoryInfo {
+  name: string;
+  displayName: string | null;
+  locationX: number | null;
+  locationY: number | null;
+  locationZ: number | null;
+  locationWorld: string | null;
+  description: string | null;
+}
+
 /** Represents a whole storage system */
 export interface StorageSystem {
   name: string;

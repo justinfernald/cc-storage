@@ -1,4 +1,4 @@
-import { StorageSystem, ItemMovementPackage } from '../interfaces/types';
+import { StorageSystem, ItemMovementPackage, InventoryInfo } from '../interfaces/types';
 
 export class APIService {
   constructor(public rootUrl: string) {}
@@ -35,6 +35,24 @@ export class APIService {
     });
 
     // check if result has status 200
+    return result.status === 200;
+  }
+
+  async getInventoryInfo(name: string): Promise<InventoryInfo> {
+    return await fetch(`${this.rootUrl}/inventoryInfo/${name}`).then((res) => res.json());
+  }
+
+  async getInventoryInfoCollection(): Promise<InventoryInfo[]> {
+    return await fetch(`${this.rootUrl}/inventoryInfo`).then((res) => res.json());
+  }
+
+  async postInventoryInfo(data: InventoryInfo): Promise<boolean> {
+    const result = await fetch(`${this.rootUrl}/inventoryInfo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
     return result.status === 200;
   }
 }

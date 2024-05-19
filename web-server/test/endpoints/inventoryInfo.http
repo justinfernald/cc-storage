@@ -1,0 +1,26 @@
+GET http://localhost:3000/inventoryInfo HTTP/1.1
+
+###
+
+# export interface InventoryInfo {
+#   name: string;
+#   displayName: string | null;
+#   locationX: number;
+#   locationY: number;
+#   locationZ: number;
+#   locationWorld: string;
+#   description: string;
+# }
+
+POST http://localhost:3000/inventoryInfo HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "test",
+  "displayName": "test",
+  "locationX": null,
+  "locationY": null,
+  "locationZ": null,
+  "locationWorld": "brand new world",
+  "description": "bruh moment"
+}
