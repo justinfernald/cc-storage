@@ -19,28 +19,10 @@ export const InventoryDialog = observer((props: InventoryDialogProps) => {
     <Dialog title={reducedStorageInfo.name} icon="cube" isOpen={isOpen} onClose={onClose}>
       <DialogBody>
         {isOpen && (
-          <Tabs large>
-            <Tab
-              id="inventory-info"
-              title="Inventory Info"
-              panel={
-                <InventoryInfoView
-                  storageSystem={storageSystem}
-                  reducedStorageInfo={reducedStorageInfo}
-                />
-              }
-            />
-            <Tab
-              id="storage-content"
-              title="Storage Content"
-              panel={
-                <InventoryInfoView
-                  storageSystem={storageSystem}
-                  reducedStorageInfo={reducedStorageInfo}
-                />
-              }
-            />
-          </Tabs>
+          <InventoryInfoView
+            storageSystem={storageSystem}
+            reducedStorageInfo={reducedStorageInfo}
+          />
         )}
       </DialogBody>
     </Dialog>

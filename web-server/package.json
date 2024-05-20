@@ -7,8 +7,8 @@
     "web-app"
   ],
   "scripts": {
-  "generate": "drizzle-kit generate",
-  "migrate": "drizzle-kit migrate",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "node dist/app.js",
