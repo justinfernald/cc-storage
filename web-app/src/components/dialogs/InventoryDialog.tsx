@@ -1,8 +1,9 @@
 import { observer } from 'mobx-react-lite';
 
 import { StorageSystem } from '../../interfaces/types';
-import { Dialog, DialogBody } from '@blueprintjs/core';
+import { Dialog, DialogBody, Tab, Tabs } from '@blueprintjs/core';
 import { ReducedStorageInfo } from '../SystemInventoryView';
+import { InventoryInfoView } from '../InventoryInfoView';
 
 export interface InventoryDialogProps {
   storageSystem: StorageSystem;
@@ -16,7 +17,32 @@ export const InventoryDialog = observer((props: InventoryDialogProps) => {
 
   return (
     <Dialog title={reducedStorageInfo.name} icon="cube" isOpen={isOpen} onClose={onClose}>
-      <DialogBody>{isOpen && <>Hiiiii</>}</DialogBody>
+      <DialogBody>
+        {isOpen && (
+          <Tabs large>
+            <Tab
+              id="inventory-info"
+              title="Inventory Info"
+              panel={
+                <InventoryInfoView
+                  storageSystem={storageSystem}
+                  reducedStorageInfo={reducedStorageInfo}
+                />
+              }
+            />
+            <Tab
+              id="storage-content"
+              title="Storage Content"
+              panel={
+                <InventoryInfoView
+                  storageSystem={storageSystem}
+                  reducedStorageInfo={reducedStorageInfo}
+                />
+              }
+            />
+          </Tabs>
+        )}
+      </DialogBody>
     </Dialog>
   );
 });

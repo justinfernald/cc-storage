@@ -4,6 +4,8 @@ import {
   StorageSystem,
   ItemMovementPackage,
   StorageSystemUpdate,
+  StorageInfo,
+  InventoryInfo,
 } from '../interfaces/types';
 import { APIService } from './APIService';
 import { WSService } from './WSService';
@@ -14,16 +16,37 @@ export class AppModel {
 
   storageSystems = new Map<string, StorageSystem>();
 
+  storageInfoMap = new Map<string, InventoryInfo>();
+
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
 
     this.setupAutoUpdate();
+    this.setupStorageInfoMap();
   }
 
   setupAutoUpdate() {
     const disposer = this.wsService.addStorageSystemChangeListener(this.updateHandler);
 
     return disposer;
+  }
+
+  setupStorageInfoMap() {
+    this.apiService.getInventoryInfoCollection().then((data) => {
+      for (const info of data) {
+        this.storageInfoMap.set(info.name, info);
+      }
+    });
+  }
+
+  getStorageInfo(name: string) {
+    return this.storageInfoMap.get(name);
+  }
+
+  async updateStorageInfo(info: InventoryInfo) {
+    await this.apiService.postInventoryInfo(info);
+
+    this.storageInfoMap.set(info.name, info);
   }
 
   updateHandler(data: StorageSystemUpdate) {
