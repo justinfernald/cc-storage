@@ -13,7 +13,7 @@ class InventoryInfoModel {
 
   static fromName(name: string) {
     return InventoryInfoModel.fromDTO(
-      appModel.getStorageInfo(name) ?? {
+      appModel.getInventoryInfo(name) ?? {
         description: null,
         displayName: name,
         locationWorld: null,
@@ -50,7 +50,7 @@ class InventoryInfoModel {
   }
 
   upload() {
-    appModel.updateStorageInfo(this.toDTO());
+    appModel.updateInventoryInfo(this.toDTO());
   }
 }
 

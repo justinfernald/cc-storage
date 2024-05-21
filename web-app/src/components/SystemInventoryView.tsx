@@ -37,10 +37,11 @@ class SystemInventoryViewModel extends BaseViewModel<SystemInventoryViewModelPro
       const reducedItemStacks = new Map<string, ReducedItemStack>();
 
       for (const itemStack of storage.itemStacks) {
-        const reducedItemStack = reducedItemStacks.get(itemStack.name);
+        const key = `${itemStack.name}${itemStack.nbtHash}`;
+        const reducedItemStack = reducedItemStacks.get(key);
 
         if (!reducedItemStack) {
-          reducedItemStacks.set(itemStack.name, {
+          reducedItemStacks.set(key, {
             ...itemStack,
             storageSlotInfo: [
               {

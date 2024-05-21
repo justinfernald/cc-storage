@@ -31,7 +31,8 @@ interface GroupedStorageSlots {
 
 class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
   quantity = 1;
-  selectedStorage: StorageInfo | null = null;
+  // selectedStorage: StorageInfo | null = null;
+  selectedStorageName?: string;
   showTransferBreakdown = false;
 
   transferStrategy = TransferStrategy.SCARCE_FIRST;
@@ -39,6 +40,8 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
   constructor(props: ItemDeliveryViewModelProps) {
     super(props);
     makeSimpleAutoObservable(this, {}, { autoBind: true });
+
+    this.selectedStorageName = appModel.historyModel.lastStorageDestination;
   }
 
   get safeQuantity() {
@@ -131,7 +134,15 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
   }
 
   setSelectedStorage(storage: StorageInfo) {
-    this.selectedStorage = storage;
+    this.selectedStorageName = storage.name;
+    appModel.historyModel.lastStorageDestination = storage.name;
+  }
+
+  get selectedStorage() {
+    if (!this.selectedStorageName) {
+      return null;
+    }
+    return appModel.getStorageInfo(this.selectedStorageName)??null;
   }
 
   toggleTransferBreakdown() {

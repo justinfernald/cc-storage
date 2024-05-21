@@ -55,7 +55,7 @@ export const ListViewItem = observer((props: ListViewItemProps) => {
               <div css={[flexColumn]}>
                 {enchantments?.map((enchantment) => (
                   <strong key={enchantment.name}>
-                    {enchantment.displayName} {enchantment.level}
+                    {enchantment.displayName}
                   </strong>
                 ))}
               </div>
