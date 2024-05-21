@@ -1,16 +1,13 @@
 import { observer } from 'mobx-react-lite';
 
-import { flex1, flexBetween, flexCenterVertical, flexValue, padding } from '../styles';
-import { ItemStack, StorageSystem } from '../interfaces/types';
+import { flex1, flexBetween, flexCenterVertical, flexValue } from '../styles';
+import { StorageSystem } from '../interfaces/types';
 import { useState } from 'react';
 import { Button, Collapse } from '@blueprintjs/core';
 import { InventoryDialog } from './dialogs/InventoryDialog';
 import { ReducedStorageInfo } from './SystemInventoryView';
 import { FlexColumn, FlexRow } from './base/Flex';
 import { FilterInfo } from '../interfaces/item-filter-types';
-import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
-import { ReducedItemStack } from '../interfaces/extra-types';
-import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 import { ListViewItem } from './ListViewItem';
 
 // interface StorageItemListViewModelProps {
@@ -114,7 +111,7 @@ export const InventoryViewItem = observer((props: InventoryViewItemProps) => {
 
   return (
     <>
-      <FlexRow>
+      <FlexRow gap={5}>
         <Button
           icon={isItemListOpen ? 'chevron-up' : 'chevron-down'}
           minimal
@@ -132,7 +129,7 @@ export const InventoryViewItem = observer((props: InventoryViewItemProps) => {
             <div css={[flexValue(1)]}>
               <div css={[flexBetween, flexCenterVertical]}>
                 <h3>{reducedStorageInfo.name}</h3>
-                <h3>{reducedStorageInfo.metaData.size}</h3>
+                <h3>{reducedStorageInfo.reducedItemStacks.length}</h3>
               </div>
               <div>
                 <i>{reducedStorageInfo.name}</i>
@@ -142,7 +139,18 @@ export const InventoryViewItem = observer((props: InventoryViewItemProps) => {
         </Button>
       </FlexRow>
       <Collapse isOpen={isItemListOpen}>
-        <FlexColumn gap={5} css={[padding('md')]}>
+        <div
+          css={[
+            {
+              position: 'absolute',
+              top: 10,
+              bottom: 10,
+              left: 15 - 1,
+            },
+            { width: 2, backgroundColor: '#999', borderRadius: 1 },
+          ]}
+        ></div>
+        <FlexColumn gap={5} css={[{ paddingLeft: 35 }]}>
           {reducedStorageInfo.reducedItemStacks.map((itemStack) => (
             <ListViewItem
               key={itemStack.nbtHash}
