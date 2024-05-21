@@ -9,9 +9,11 @@
   "scripts": {
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "node dist/app.js",
+    "go": "npm run build && npm run start",
     "dev": "nodemon --ignore **/*.json src/app.ts"
   },
   "author": "",

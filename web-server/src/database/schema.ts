@@ -20,8 +20,12 @@ export const tags = sqliteTable('tags', {
 export const storageTags = sqliteTable(
   'storage_tags',
   {
-    storageId: integer('storage_id').references(() => storages.id),
-    tagId: integer('tag_id').references(() => tags.id),
+    storageId: integer('storage_id')
+      .notNull()
+      .references(() => storages.id),
+    tagId: integer('tag_id')
+      .notNull()
+      .references(() => tags.id),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.storageId, t.tagId] }),
@@ -29,11 +33,11 @@ export const storageTags = sqliteTable(
 );
 
 export const tagsRelations = relations(tags, ({ many }) => ({
-  storages: many(storages, { relationName: 'storages' }),
+  storages: many(storageTags),
 }));
 
 export const storageRelations = relations(storages, ({ many }) => ({
-  tags: many(tags, { relationName: 'tags' }),
+  tags: many(storageTags),
 }));
 
 export const storageTagsRelations = relations(storageTags, ({ one }) => ({

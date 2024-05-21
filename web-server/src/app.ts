@@ -322,28 +322,40 @@ app.post('/inventoryInfo', async (req: Request, res: Response) => {
   const { name, tags, ...updatedData } = data;
 
   await db.transaction(async (tx) => {
-    const tagIds = await tx
-      .insert(tagsTable)
-      .values(tags)
-      .onConflictDoNothing()
-      .returning({ id: tagsTable.id });
+    console.log('a');
+    await tx.insert(tagsTable).values(tags).onConflictDoNothing().execute();
 
+    const tagIds = await tx.query.tags.findMany({
+      where: (tag, { inArray }) =>
+        inArray(
+          tag.name,
+          tags.map((tag) => tag.name),
+        ),
+    });
+
+    console.log('b');
     // insert or update the inventory info in the db
     const [storageId] = await tx
       .insert(storages)
       .values({
-        name: name,
+        name,
         ...updatedData,
       })
       .onConflictDoUpdate({ target: [storages.name], set: updatedData })
       .returning({ id: storages.id });
 
+    console.log('c');
     await tx.delete(storageTags).where(eq(storageTags.storageId, storageId.id)).execute();
 
-    await tx
-      .insert(storageTags)
-      .values(tagIds.map((tag) => ({ storageId: storageId.id, tagId: tag.id })))
-      .execute();
+    console.log('d');
+    if (tagIds.length > 0) {
+      await tx
+        .insert(storageTags)
+        .values(tagIds.map((tag) => ({ storageId: storageId.id, tagId: tag.id })))
+        .execute();
+    }
+
+    console.log('e');
   });
 
   res.json({ message: 'Inventory info updated' });
@@ -361,7 +373,11 @@ app.get('/inventoryInfo/:name', async (req: Request, res: Response) => {
   const data = await db.query.storages.findFirst({
     where: (storage, { eq }) => eq(storage.name, name),
     with: {
-      tags: true,
+      tags: {
+        with: {
+          tag: true,
+        },
+      },
     },
   });
 
@@ -370,13 +386,20 @@ app.get('/inventoryInfo/:name', async (req: Request, res: Response) => {
     return;
   }
 
-  res.json(data satisfies InventoryInfo);
+  res.json(data);
+  // res.json(data satisfies InventoryInfo);
 });
 
 app.get('/inventoryInfo', async (_req: Request, res: Response) => {
   // const data: InventoryInfo[] = await db.select().from(storages).execute();
   const data = await db.query.storages.findMany({
-    with: { tags: true },
+    with: {
+      tags: {
+        with: {
+          tag: true,
+        },
+      },
+    },
   });
 
   res.json(data);

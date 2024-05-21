@@ -22,5 +22,6 @@ Content-Type: application/json
   "locationY": null,
   "locationZ": null,
   "locationWorld": "brand new world",
-  "description": "bruh moment"
+  "description": "bruh moment",
+  "tags": [{"name": "eeeepy"}, {"name": "test"}]
 }
