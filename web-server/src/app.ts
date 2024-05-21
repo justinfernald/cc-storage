@@ -221,11 +221,6 @@ app.get('/connectedComputers', (req: Request, res: Response) => {
   });
 });
 
-app.get('/storageData', async (req: Request, res: Response) => {
-  const data = await fs.readFile('storage-data.json', 'utf-8');
-  res.json(JSON.parse(data));
-});
-
 app.get('/storageSystems', async (req: Request, res: Response) => {
   const files = await fs.readdir('storage-systems-data');
   const data: StorageSystem[] = await Promise.all(
