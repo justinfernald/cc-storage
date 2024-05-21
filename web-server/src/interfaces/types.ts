@@ -20,6 +20,11 @@ export interface InventoryInfo {
   locationZ: number | null;
   locationWorld: string | null;
   description: string | null;
+  tags: Tag[];
+}
+
+export interface Tag {
+  name: string;
 }
 
 /** Represents a whole storage system */

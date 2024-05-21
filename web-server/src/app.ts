@@ -24,7 +24,12 @@ import {
 } from './interfaces/types';
 import { sleep } from './utils';
 import { db } from './database/database';
-import { storages } from './database/schema';
+import {
+  storageTags,
+  storageTagsRelations,
+  storages,
+  tags as tagsTable,
+} from './database/schema';
 import { eq } from 'drizzle-orm';
 
 const appWs = expressWs(express());
@@ -314,16 +319,32 @@ app.post('/moveItems', async (req: Request, res: Response) => {
 app.post('/inventoryInfo', async (req: Request, res: Response) => {
   const data: InventoryInfo = req.body;
 
-  const { name, ...updatedData } = data;
+  const { name, tags, ...updatedData } = data;
 
-  // insert or update the inventory info in the db
-  await db
-    .insert(storages)
-    .values({
-      name: name,
-      ...updatedData,
-    })
-    .onConflictDoUpdate({ target: [storages.name], set: updatedData });
+  await db.transaction(async (tx) => {
+    const tagIds = await tx
+      .insert(tagsTable)
+      .values(tags)
+      .onConflictDoNothing()
+      .returning({ id: tagsTable.id });
+
+    // insert or update the inventory info in the db
+    const [storageId] = await tx
+      .insert(storages)
+      .values({
+        name: name,
+        ...updatedData,
+      })
+      .onConflictDoUpdate({ target: [storages.name], set: updatedData })
+      .returning({ id: storages.id });
+
+    await tx.delete(storageTags).where(eq(storageTags.storageId, storageId.id)).execute();
+
+    await tx
+      .insert(storageTags)
+      .values(tagIds.map((tag) => ({ storageId: storageId.id, tagId: tag.id })))
+      .execute();
+  });
 
   res.json({ message: 'Inventory info updated' });
 });
@@ -331,11 +352,18 @@ app.post('/inventoryInfo', async (req: Request, res: Response) => {
 app.get('/inventoryInfo/:name', async (req: Request, res: Response) => {
   const name = req.params.name;
 
-  const [data] = await db
-    .select()
-    .from(storages)
-    .where(eq(storages.name, name))
-    .execute();
+  // const [data] = await db
+  //   .select()
+  //   .from(storages)
+  //   .where(eq(storages.name, name))
+  //   .execute();
+
+  const data = await db.query.storages.findFirst({
+    where: (storage, { eq }) => eq(storage.name, name),
+    with: {
+      tags: true,
+    },
+  });
 
   if (!data) {
     res.status(404).json({ message: 'Inventory info not found' });
@@ -346,7 +374,10 @@ app.get('/inventoryInfo/:name', async (req: Request, res: Response) => {
 });
 
 app.get('/inventoryInfo', async (_req: Request, res: Response) => {
-  const data: InventoryInfo[] = await db.select().from(storages).execute();
+  // const data: InventoryInfo[] = await db.select().from(storages).execute();
+  const data = await db.query.storages.findMany({
+    with: { tags: true },
+  });
 
   res.json(data);
 });
