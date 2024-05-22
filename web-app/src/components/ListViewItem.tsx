@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 
 import { flexBetween, flexCenterVertical, flexColumn, flexValue } from '../styles';
-import { StorageSystem } from '@cc-storage/common/src/types/types';
+import { StorageSystem } from '@cc-storage/common/src/types';
 import { useState } from 'react';
 import { Button } from '@blueprintjs/core';
 import { ReducedItemStack } from '../interfaces/extra-types';

@@ -21,7 +21,7 @@ import {
   StorageSystemUpdate,
   MessageTypeClientToServer,
   InventoryInfo,
-} from '@cc-storage/common/src/types/types';
+} from '@cc-storage/common/src/types/index';
 import { sleep } from './utils';
 import { db } from './database/database';
 import {

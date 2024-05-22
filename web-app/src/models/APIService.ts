@@ -2,7 +2,7 @@ import {
   StorageSystem,
   ItemMovementPackage,
   InventoryInfo,
-} from '@cc-storage/common/src/types/types';
+} from '@cc-storage/common/src/types';
 
 export class APIService {
   constructor(public rootUrl: string) {}

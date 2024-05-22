@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { InventoryInfo, StorageSystem } from '@cc-storage/common/src/types/types';
+import { InventoryInfo, StorageSystem } from '@cc-storage/common/src/types';
 import { ReducedStorageInfo } from './SystemInventoryView';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
