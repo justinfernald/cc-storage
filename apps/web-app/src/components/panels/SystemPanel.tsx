@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 
 import { fullSize } from '../../styles';
 import { StorageSystem } from '../../interfaces/types';
-import { SystemDisplay } from '../../components/SystemDisplay';
+import { SystemDisplay } from '../SystemDisplay';
 import { PanelInfo } from './PanelManager';
 
 export interface SystemPanelInfo extends PanelInfo {

@@ -1,0 +1,13 @@
+
+> web-server@1.0.0 build /workspaces/cc-storage/apps/web-server
+> tsc
+
+[96msrc/app.ts[0m:[93m26[0m:[93m16[0m - [91merror[0m[90m TS2307: [0mCannot find module 'utils' or its corresponding type declarations.
+
+[7m26[0m import {} from 'utils';
+[7m  [0m [91m               ~~~~~~~[0m
+
+
+Found 1 error in src/app.ts[90m:26[0m
+
+[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 2.[39m

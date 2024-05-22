@@ -3,19 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo run build",
+    "clean": "turbo run clean",
+    "dev": "turbo run dev --no-cache  --continue",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
   "devDependencies": {
-    "eslint": "^8.26.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.31.10",
-    "eslint-plugin-simple-import-sort": "^8.0.0",
-    "eslint-plugin-storybook": "^0.6.8",
-    "prettier": "^2.7.1"
+    "prettier": "^2.7.1",
+    "turbo": "latest"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "packageManager": "pnpm@8.15.6"
 }
