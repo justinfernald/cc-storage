@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 
 import { flexColumn } from '../styles';
-import { StorageSystem } from '../interfaces/types';
+import { StorageSystem } from '@cc-storage/common/src/types/types';
 import { ReducedItemStack } from '../interfaces/extra-types';
 
 export interface ItemDetailsViewProps {

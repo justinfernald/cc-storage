@@ -1,4 +1,8 @@
-import { StorageSystem, ItemMovementPackage, InventoryInfo } from '../interfaces/types';
+import {
+  StorageSystem,
+  ItemMovementPackage,
+  InventoryInfo,
+} from '@cc-storage/common/src/types/types';
 
 export class APIService {
   constructor(public rootUrl: string) {}

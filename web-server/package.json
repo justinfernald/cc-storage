@@ -1,11 +1,8 @@
 {
-  "name": "web-server",
+  "name": "@cc-storage/web-server",
   "version": "1.0.0",
   "description": "",
-  "workspaces": [
-    "web-server",
-    "web-app"
-  ],
+  "private": true,
   "scripts": {
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
@@ -19,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@cc-storage/common": "file:../common",
     "better-sqlite3": "^10.0.0",
     "drizzle-orm": "^0.30.10",
     "express": "^4.19.2",

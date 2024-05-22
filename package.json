@@ -2,6 +2,11 @@
   "name": "cc-storage",
   "version": "1.0.0",
   "description": "",
+  "workspaces": [
+    "web-app",
+    "web-server",
+    "common"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,6 +19,7 @@
     "eslint-plugin-react": "^7.31.10",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "eslint-plugin-storybook": "^0.6.8",
+    "lerna": "^8.1.3",
     "prettier": "^2.7.1"
   },
   "author": "",

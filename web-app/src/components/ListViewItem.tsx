@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 
 import { flexBetween, flexCenterVertical, flexColumn, flexValue } from '../styles';
-import { StorageSystem } from '../interfaces/types';
+import { StorageSystem } from '@cc-storage/common/src/types/types';
 import { useState } from 'react';
 import { Button } from '@blueprintjs/core';
 import { ReducedItemStack } from '../interfaces/extra-types';
@@ -54,9 +54,7 @@ export const ListViewItem = observer((props: ListViewItemProps) => {
               </div>
               <div css={[flexColumn]}>
                 {enchantments?.map((enchantment) => (
-                  <strong key={enchantment.name}>
-                    {enchantment.displayName}
-                  </strong>
+                  <strong key={enchantment.name}>{enchantment.displayName}</strong>
                 ))}
               </div>
             </div>

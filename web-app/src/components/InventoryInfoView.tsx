@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { InventoryInfo, StorageSystem } from '../interfaces/types';
+import { InventoryInfo, StorageSystem } from '@cc-storage/common/src/types/types';
 import { ReducedStorageInfo } from './SystemInventoryView';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
@@ -21,6 +21,7 @@ class InventoryInfoModel {
         locationY: null,
         locationZ: null,
         name: name,
+        tags: [],
       },
     );
   }
@@ -29,7 +30,7 @@ class InventoryInfoModel {
     makeSimpleAutoObservable(this, {}, { autoBind: true });
   }
 
-  toDTO() {
+  toDTO(): InventoryInfo {
     return {
       name: this.inventoryInfo.name,
       displayName: this.inventoryInfo.displayName,
@@ -38,6 +39,7 @@ class InventoryInfoModel {
       locationX: this.inventoryInfo.locationX,
       locationY: this.inventoryInfo.locationY,
       locationZ: this.inventoryInfo.locationZ,
+      tags: [],
     };
   }
 

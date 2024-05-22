@@ -5,7 +5,7 @@ import {
   ConnectionType,
   MessageS2C,
   StorageSystemUpdate,
-} from '../interfaces/types';
+} from '@cc-storage/common/src/types/types';
 
 export class WSService {
   constructor(public wsUrl: string) {

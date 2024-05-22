@@ -1,7 +1,11 @@
 import { observer } from 'mobx-react-lite';
 
 import { flex, flexColumn } from '../styles';
-import { ItemMovementPackage, StorageInfo, StorageSystem } from '../interfaces/types';
+import {
+  ItemMovementPackage,
+  StorageInfo,
+  StorageSystem,
+} from '@cc-storage/common/src/types/types';
 import {
   Button,
   Callout,
@@ -142,7 +146,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     if (!this.selectedStorageName) {
       return null;
     }
-    return appModel.getStorageInfo(this.selectedStorageName)??null;
+    return appModel.getStorageInfo(this.selectedStorageName) ?? null;
   }
 
   toggleTransferBreakdown() {

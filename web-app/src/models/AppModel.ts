@@ -6,7 +6,7 @@ import {
   StorageSystemUpdate,
   InventoryInfo,
   StorageInfo,
-} from '../interfaces/types';
+} from '@cc-storage/common/src/types/types';
 import { APIService } from './APIService';
 import { WSService } from './WSService';
 
