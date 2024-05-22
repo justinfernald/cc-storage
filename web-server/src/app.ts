@@ -21,6 +21,7 @@ import {
   StorageSystemUpdate,
   MessageTypeClientToServer,
   InventoryInfo,
+  Tag,
 } from './interfaces/types';
 import { sleep } from './utils';
 import { db } from './database/database';
@@ -312,15 +313,18 @@ app.post('/inventoryInfo', async (req: Request, res: Response) => {
   const { name, tags, ...updatedData } = data;
 
   await db.transaction(async (tx) => {
-    await tx.insert(tagsTable).values(tags).onConflictDoNothing().execute();
+    let tagIds: { id: number; name: string }[] = [];
 
-    const tagIds = await tx.query.tags.findMany({
-      where: (tag, { inArray }) =>
-        inArray(
-          tag.name,
-          tags.map((tag) => tag.name),
-        ),
-    });
+    if (tags.length > 0) {
+      await tx.insert(tagsTable).values(tags).onConflictDoNothing().execute();
+      tagIds = await tx.query.tags.findMany({
+        where: (tag, { inArray }) =>
+          inArray(
+            tag.name,
+            tags.map((tag) => tag.name),
+          ),
+      });
+    }
 
     // insert or update the inventory info in the db
     const [storageId] = await tx
@@ -391,6 +395,12 @@ app.get('/inventoryInfo', async (_req: Request, res: Response) => {
   }));
 
   res.json(formattedData);
+});
+
+app.get('/tags', async (_req: Request, res: Response) => {
+  const data = await db.query.tags.findMany();
+
+  res.json(data satisfies Tag[]);
 });
 
 app.listen(port, () => {
