@@ -1,8 +1,0 @@
-
-> utils@0.0.0 build /workspaces/cc-storage/packages/utils
-> pnpm barrel
-
-
-> utils@0.0.0 barrel /workspaces/cc-storage/packages/utils
-> barrelsby -D -d ./src 
-
