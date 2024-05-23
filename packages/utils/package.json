@@ -6,10 +6,9 @@
   "scripts": {
     "build": "pnpm barrel",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
-    "dev": "tsc -w",
     "lint": "eslint \"src/**/*.ts*\"",
     "test": "jest",
-    "barrel": "barrelsby -D -d ./src "
+    "barrel": "barrelsby -D -d ./src"
   },
   "jest": {
     "preset": "jest-presets/jest/node"
