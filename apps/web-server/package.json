@@ -23,7 +23,9 @@
     "drizzle-orm": "^0.30.10",
     "express": "^4.19.2",
     "express-ws": "^5.0.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "utils": "workspace:*",
+    "types": "workspace:*"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.10",

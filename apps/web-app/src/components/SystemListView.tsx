@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import { ItemStack, StorageSystem } from '../interfaces/types';
+import { ItemStack, StorageSystem } from 'types';
 import { FilterInfo, SearchTag, SortDirection } from '../interfaces/item-filter-types';
 import { ReducedItemStack } from '../interfaces/extra-types';
 import { flexColumn, padding } from '../styles';

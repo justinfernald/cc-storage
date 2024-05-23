@@ -2,14 +2,9 @@
   "name": "utils",
   "version": "0.0.0",
   "private": true,
-  "main": "./dist/index.js",
-  "source": "./src/index.ts",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist/**"
-  ],
+  "main": "./src/index.ts",
   "scripts": {
-    "build": "pnpm barrel && tsc",
+    "build": "pnpm barrel",
     "clean": "rm -rf .turbo && rm -rf node_modules && rm -rf dist",
     "dev": "tsc -w",
     "lint": "eslint \"src/**/*.ts*\"",

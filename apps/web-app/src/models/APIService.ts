@@ -1,4 +1,4 @@
-import { StorageSystem, ItemMovementPackage, InventoryInfo } from '../interfaces/types';
+import { StorageSystem, ItemMovementPackage, InventoryInfo } from 'types';
 
 export class APIService {
   constructor(public rootUrl: string) {}

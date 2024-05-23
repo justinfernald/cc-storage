@@ -4,3 +4,4 @@ dist/
 **/dist/
 **/*.db
 web-server/storage-systems-data/
+**/.turbo/

@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 
 import { flex1, flexBetween, flexCenterVertical, flexValue } from '../styles';
-import { StorageSystem } from '../interfaces/types';
+import { StorageSystem } from 'types';
 import { useState } from 'react';
 import { Button, Collapse } from '@blueprintjs/core';
 import { InventoryDialog } from './dialogs/InventoryDialog';

@@ -1,12 +1,19 @@
 import { observer } from 'mobx-react-lite';
-import { InventoryInfo, StorageSystem } from '../interfaces/types';
+import { InventoryInfo, StorageSystem } from 'types';
 import { ReducedStorageInfo } from './SystemInventoryView';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { appModel } from '../App';
 import { useState } from 'react';
 import { FlexRow } from './base/Flex';
-import { Button, ButtonGroup, InputGroup, Label, NumericInput, TextArea } from '@blueprintjs/core';
+import {
+  Button,
+  ButtonGroup,
+  InputGroup,
+  Label,
+  NumericInput,
+  TextArea,
+} from '@blueprintjs/core';
 import { absolute, relative } from '../styles';
 import { action } from 'mobx';
 
@@ -43,7 +50,7 @@ class InventoryInfoModel {
       locationX: this.inventoryInfo.locationX,
       locationY: this.inventoryInfo.locationY,
       locationZ: this.inventoryInfo.locationZ,
-      tags: []
+      tags: [],
     };
   }
 
@@ -82,7 +89,7 @@ class InventoryInfoViewModel extends BaseViewModel<InventoryInfoViewProps> {
 
   onLocationChange = (value: number, axis: 0 | 1 | 2) => {
     const inventoryInfoCopy = this.inventoryInfoModelCopy.inventoryInfo;
-    switch(axis) {
+    switch (axis) {
       case 0:
         inventoryInfoCopy.locationX = value;
         break;
@@ -93,11 +100,11 @@ class InventoryInfoViewModel extends BaseViewModel<InventoryInfoViewProps> {
         inventoryInfoCopy.locationZ = value;
         break;
     }
-  }
+  };
 
   onDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     this.inventoryInfoModelCopy.inventoryInfo.description = event.target.value;
-  }
+  };
 }
 
 export interface InventoryInfoViewProps {
@@ -121,7 +128,8 @@ export const InventoryInfoView = observer((props: InventoryInfoViewProps) => {
   };
 
   const saveEdits = () => {
-    viewModel.inventoryInfoModel.inventoryInfo = viewModel.inventoryInfoModelCopy.inventoryInfo;
+    viewModel.inventoryInfoModel.inventoryInfo =
+      viewModel.inventoryInfoModelCopy.inventoryInfo;
     viewModel.inventoryInfoModelCopy = viewModel.inventoryInfoModel.clone();
     viewModel.inventoryInfoModel.upload();
     setIsEditing(false);
@@ -129,73 +137,73 @@ export const InventoryInfoView = observer((props: InventoryInfoViewProps) => {
 
   return (
     <div css={[relative()]}>
-      <div css={[{width: "80%"}]}>
+      <div css={[{ width: '80%' }]}>
         <Label>
           Display Name:
-          <InputGroup 
-              value={inventoryInfoCopy.displayName??undefined} 
-              onChange={viewModel.onDisplayNameChange} 
-              readOnly={!isEditing}
-            />
+          <InputGroup
+            value={inventoryInfoCopy.displayName ?? undefined}
+            onChange={viewModel.onDisplayNameChange}
+            readOnly={!isEditing}
+          />
         </Label>
         <p>Name: {inventoryInfo.name}</p>
-        
-        <FlexRow >
+
+        <FlexRow>
           <Label>
             X:
             <NumericInput
-                
-                css={[{"&>div": {width: "70px"}}]}
-                value={inventoryInfoCopy.locationX??0}
-                onValueChange={value => viewModel.onLocationChange(value, 0)}
-                stepSize={1}
-                readOnly={!isEditing}
-              />
+              css={[{ '&>div': { width: '70px' } }]}
+              value={inventoryInfoCopy.locationX ?? 0}
+              onValueChange={(value) => viewModel.onLocationChange(value, 0)}
+              stepSize={1}
+              readOnly={!isEditing}
+            />
           </Label>
           <Label>
             Y:
             <NumericInput
-                
-                css={[{"&>div": {width: "70px"}}]}
-                value={inventoryInfoCopy.locationY??0}
-                onValueChange={value => viewModel.onLocationChange(value, 1)}
-                stepSize={1}
-                readOnly={!isEditing}
-              />
+              css={[{ '&>div': { width: '70px' } }]}
+              value={inventoryInfoCopy.locationY ?? 0}
+              onValueChange={(value) => viewModel.onLocationChange(value, 1)}
+              stepSize={1}
+              readOnly={!isEditing}
+            />
           </Label>
           <Label>
             Z:
             <NumericInput
-                
-                css={[{"&>div": {width: "70px"}}]}
-                value={inventoryInfoCopy.locationZ??0}
-                onValueChange={value => viewModel.onLocationChange(value, 2)}
-                stepSize={1}
-                readOnly={!isEditing}
-              />
+              css={[{ '&>div': { width: '70px' } }]}
+              value={inventoryInfoCopy.locationZ ?? 0}
+              onValueChange={(value) => viewModel.onLocationChange(value, 2)}
+              stepSize={1}
+              readOnly={!isEditing}
+            />
           </Label>
         </FlexRow>
         <Label>
           Description:
-          <TextArea 
-              value={inventoryInfoCopy.description??undefined}
-              onChange={viewModel.onDescriptionChange}
-              readOnly={!isEditing}
-            />
+          <TextArea
+            value={inventoryInfoCopy.description ?? undefined}
+            onChange={viewModel.onDescriptionChange}
+            readOnly={!isEditing}
+          />
         </Label>
       </div>
-      {
-        isEditing ? (
-          <FlexRow css={[absolute(0,0)]}>
-            <ButtonGroup>
-              <Button onClick={action(saveEdits)} icon="tick" intent='success' disabled={!viewModel.hasChanges}/>
-              <Button onClick={action(cancelEdits)} icon="cross" intent='danger'/>
-            </ButtonGroup>
-          </FlexRow>
-        ) : (
-          <Button onClick={() => setIsEditing(true)} icon="edit" css={[absolute(0,0)]} />
-        )
-      }
+      {isEditing ? (
+        <FlexRow css={[absolute(0, 0)]}>
+          <ButtonGroup>
+            <Button
+              onClick={action(saveEdits)}
+              icon="tick"
+              intent="success"
+              disabled={!viewModel.hasChanges}
+            />
+            <Button onClick={action(cancelEdits)} icon="cross" intent="danger" />
+          </ButtonGroup>
+        </FlexRow>
+      ) : (
+        <Button onClick={() => setIsEditing(true)} icon="edit" css={[absolute(0, 0)]} />
+      )}
     </div>
   );
 });

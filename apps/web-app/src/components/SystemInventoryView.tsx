@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import { ItemStack, StorageInfo, StorageSystem } from '../interfaces/types';
+import { ItemStack, StorageInfo, StorageSystem } from 'types';
 import { FilterInfo } from '../interfaces/item-filter-types';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';

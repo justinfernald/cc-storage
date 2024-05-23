@@ -108,9 +108,15 @@ importers:
       express-ws:
         specifier: ^5.0.2
         version: 5.0.2(express@4.19.2)
+      types:
+        specifier: workspace:*
+        version: link:../../packages/types
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
+      utils:
+        specifier: workspace:*
+        version: link:../../packages/utils
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.10

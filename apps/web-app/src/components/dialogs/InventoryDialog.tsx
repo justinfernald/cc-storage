@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 
-import { StorageSystem } from '../../interfaces/types';
+import { StorageSystem } from 'types';
 import { Dialog, DialogBody, Tab, Tabs } from '@blueprintjs/core';
 import { ReducedStorageInfo } from '../SystemInventoryView';
 import { InventoryInfoView } from '../InventoryInfoView';

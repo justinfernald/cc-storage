@@ -22,8 +22,7 @@ import {
   MessageTypeClientToServer,
   InventoryInfo,
   Tag,
-} from './interfaces/types';
-import {} from 'utils';
+} from 'types';
 import { sleep } from './utils';
 import { db } from './database/database';
 import { storageTags, storages, tags, tags as tagsTable } from './database/schema';

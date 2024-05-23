@@ -1,6 +1,6 @@
 
 > types@0.0.0 build /workspaces/cc-storage/packages/types
-> pnpm barrel && tsc
+> pnpm barrel
 
 
 > types@0.0.0 barrel /workspaces/cc-storage/packages/types
