@@ -10,78 +10,6 @@ import { FlexColumn, FlexRow } from './base/Flex';
 import { FilterInfo } from '../interfaces/item-filter-types';
 import { ListViewItem } from './ListViewItem';
 
-// interface StorageItemListViewModelProps {
-//   storageSystem: StorageSystem;
-//   reducedStorageInfo: ReducedStorageInfo;
-//   filterInfo: FilterInfo;
-// }
-
-// class StorageItemListViewModel extends BaseViewModel<StorageItemListViewModelProps> {
-//   constructor(props: StorageItemListViewModelProps) {
-//     super(props);
-//     makeSimpleAutoObservable(this, {}, { autoBind: true });
-//   }
-
-//   get reducedItems() {
-//     const itemStacksWithStorageMap = new Map<
-//       string,
-//       { storageName: string; itemStack: ItemStack }[]
-//     >();
-
-//     for (const itemStack of this.props.reducedStorageInfo.reducedItemStacks) {
-//       if (!storage.itemStacks) {
-//         continue;
-//       }
-
-//       for (const itemStack of storage.itemStacks) {
-//         if (!itemStacksWithStorageMap.has(itemStack.name)) {
-//           itemStacksWithStorageMap.set(itemStack.name, []);
-//         }
-
-//         itemStacksWithStorageMap.get(itemStack.name)?.push({
-//           storageName: storage.name,
-//           itemStack,
-//         });
-//       }
-//     }
-
-//     const reducedItemsMap = new Map<string, Map<string, ReducedItemStack>>();
-
-//     for (const [name, itemStacksWithStorage] of itemStacksWithStorageMap) {
-//       // group them by nbtHash
-//       const reducedItems = new Map<string, ReducedItemStack>();
-//       for (const itemStackWithStorage of itemStacksWithStorage) {
-//         if (!reducedItems.has(itemStackWithStorage.itemStack.nbtHash)) {
-//           reducedItems.set(itemStackWithStorage.itemStack.nbtHash, {
-//             ...itemStackWithStorage.itemStack,
-//             storageSlotInfo: [
-//               {
-//                 storageName: itemStackWithStorage.storageName,
-//                 slot: itemStackWithStorage.itemStack.slot,
-//                 count: itemStackWithStorage.itemStack.count,
-//               },
-//             ],
-//           });
-//         } else {
-//           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-//           reducedItems.get(itemStackWithStorage.itemStack.nbtHash)!.count +=
-//             itemStackWithStorage.itemStack.count;
-
-//           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-//           reducedItems.get(itemStackWithStorage.itemStack.nbtHash)!.storageSlotInfo.push({
-//             storageName: itemStackWithStorage.storageName,
-//             slot: itemStackWithStorage.itemStack.slot,
-//             count: itemStackWithStorage.itemStack.count,
-//           });
-//         }
-//       }
-//       reducedItemsMap.set(name, reducedItems);
-//     }
-
-//     return Array.from(reducedItemsMap.values());
-//   }
-// }
-
 export interface InventoryViewItemProps {
   storageSystem: StorageSystem;
   reducedStorageInfo: ReducedStorageInfo;
@@ -89,7 +17,7 @@ export interface InventoryViewItemProps {
 }
 
 export const InventoryViewItem = observer((props: InventoryViewItemProps) => {
-  const { reducedStorageInfo, storageSystem, filterInfo } = props;
+  const { reducedStorageInfo, storageSystem } = props;
 
   const [isInventoryDialogOpen, setIsInventoryDialogOpen] = useState(false);
 

@@ -4,11 +4,11 @@ import { ItemStack, StorageInfo, StorageSystem } from 'types';
 import { FilterInfo } from '../interfaces/item-filter-types';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
-import { ReducedItemStack, StorageSlotInfo } from '../interfaces/extra-types';
+import { ReducedItemStack } from '../interfaces/extra-types';
 import { InventoryViewItem } from './InventoryViewItem';
 import { flexColumn, padding } from '../styles';
 import { toJS } from 'mobx';
-import { Wap, WapBucket } from 'utils';
+import { Wap } from 'utils';
 
 interface SystemInventoryViewModelProps {
   system: StorageSystem;

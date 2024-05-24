@@ -25,7 +25,7 @@ import {
 } from 'types';
 import { sleep } from './utils';
 import { db } from './database/database';
-import { storageTags, storages, tags, tags as tagsTable } from './database/schema';
+import { storageTags, storages, tags as tagsTable } from './database/schema';
 import { eq } from 'drizzle-orm';
 import { Wap } from 'utils';
 

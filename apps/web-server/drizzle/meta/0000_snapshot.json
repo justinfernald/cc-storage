@@ -28,12 +28,8 @@
           "name": "storage_tags_storage_id_storages_id_fk",
           "tableFrom": "storage_tags",
           "tableTo": "storages",
-          "columnsFrom": [
-            "storage_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["storage_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -41,22 +37,15 @@
           "name": "storage_tags_tag_id_tags_id_fk",
           "tableFrom": "storage_tags",
           "tableTo": "tags",
-          "columnsFrom": [
-            "tag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["tag_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "storage_tags_storage_id_tag_id_pk": {
-          "columns": [
-            "storage_id",
-            "tag_id"
-          ],
+          "columns": ["storage_id", "tag_id"],
           "name": "storage_tags_storage_id_tag_id_pk"
         }
       },
@@ -125,9 +114,7 @@
       "indexes": {
         "storages_name_unique": {
           "name": "storages_name_unique",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": true
         }
       },
@@ -156,9 +143,7 @@
       "indexes": {
         "tags_name_unique": {
           "name": "tags_name_unique",
-          "columns": [
-            "name"
-          ],
+          "columns": ["name"],
           "isUnique": true
         }
       },

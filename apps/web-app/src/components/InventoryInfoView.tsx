@@ -113,8 +113,6 @@ export interface InventoryInfoViewProps {
 }
 
 export const InventoryInfoView = observer((props: InventoryInfoViewProps) => {
-  const { storageSystem, reducedStorageInfo } = props;
-
   const [isEditing, setIsEditing] = useState(false);
 
   const viewModel = useViewModelConstructor(InventoryInfoViewModel, props);

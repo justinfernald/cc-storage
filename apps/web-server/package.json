@@ -11,6 +11,8 @@
     "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "lint": "eslint . --fix --ext .ts",
     "build": "tsc",
     "start": "node dist/app.js",
     "go": "npm run build && npm run start",
