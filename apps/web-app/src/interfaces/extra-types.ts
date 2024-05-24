@@ -1,4 +1,4 @@
-import { ItemStack } from './types';
+import { ItemStack } from 'types';
 
 export interface StorageSlotInfo {
   storageName: string;

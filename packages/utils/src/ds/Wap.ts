@@ -82,24 +82,24 @@ export class Wap<K, V> {
     return this.size === 0;
   }
 
-  keys(): K[] {
-    return Array.from(this.rawMap.keys());
+  keys<R = K>(mapfn?: (v: K, i: number) => R): R[] {
+    return Array.from(this.rawMap.keys(), mapfn as any);
   }
 
-  values(): V[] {
-    return Array.from(this.rawMap.values());
+  values<R = V>(mapfn?: (v: V, i: number) => R): R[] {
+    return Array.from(this.rawMap.values(), mapfn as any);
   }
 
-  entries(): [K, V][] {
-    return Array.from(this.rawMap.entries());
+  entries<R = [K, V]>(mapfn?: (v: [K, V], i: number) => R): R[] {
+    return Array.from(this.rawMap.entries(), mapfn as any);
   }
 
   mapValue<NV>(f: (value: V, key: K) => NV): Wap<K, NV> {
     const newMap = new Wap<K, NV>();
 
-    this.forEach((value, key) => {
+    for (const [key, value] of this) {
       newMap.set(key, f(value, key));
-    });
+    }
 
     return newMap;
   }
@@ -107,9 +107,9 @@ export class Wap<K, V> {
   mapKey<NK>(f: (key: K, value: V) => NK): Wap<NK, V> {
     const newMap = new Wap<NK, V>();
 
-    this.forEach((value, key) => {
+    for (const [key, value] of this) {
       newMap.set(f(key, value), value);
-    });
+    }
 
     return newMap;
   }
@@ -117,10 +117,10 @@ export class Wap<K, V> {
   mapKeyAndValue<NK, NV>(f: (key: K, value: V) => [NK, NV]): Wap<NK, NV> {
     const newMap = new Wap<NK, NV>();
 
-    this.forEach((value, key) => {
+    for (const [key, value] of this) {
       const [newKey, newValue] = f(key, value);
       newMap.set(newKey, newValue);
-    });
+    }
 
     return newMap;
   }
@@ -129,42 +129,44 @@ export class Wap<K, V> {
     callbackfn: (value: V, key: K, map: Wap<K, V>) => void,
     thisArg?: unknown,
   ): void {
-    this.rawMap.forEach((value, key) => callbackfn.call(thisArg, value, key, this));
+    for (const [key, value] of this) {
+      callbackfn.call(thisArg, value, key, this);
+    }
   }
 
   merge(other: Wap<K, V>): this {
-    other.forEach((value, key) => {
+    for (const [key, value] of other) {
       this.set(key, value);
-    });
+    }
     return this;
   }
 
   filter(predicate: (value: V, key: K) => boolean): Wap<K, V> {
     const newMap = new Wap<K, V>();
-    this.forEach((value, key) => {
+    for (const [key, value] of this) {
       if (predicate(value, key)) {
         newMap.set(key, value);
       }
-    });
+    }
     return newMap;
   }
 
   reduce<T>(reducer: (accumulator: T, value: V, key: K) => T, initialValue: T): T {
     let accumulator = initialValue;
-    this.forEach((value, key) => {
+    for (const [key, value] of this) {
       accumulator = reducer(accumulator, value, key);
-    });
+    }
     return accumulator;
   }
 
   toRecord(): Record<string | number | symbol, V> {
     const record = {} as Record<string | number | symbol, V>;
-    this.rawMap.forEach((value, key) => {
+    for (const [key, value] of this) {
       if (typeof key !== 'string' && typeof key !== 'number' && typeof key !== 'symbol') {
         throw new Error(`Key [${key}] is not a valid Record key type`);
       }
       record[key as string | number | symbol] = value;
-    });
+    }
     return record;
   }
 
@@ -173,6 +175,6 @@ export class Wap<K, V> {
   }
 
   [Symbol.iterator](): IterableIterator<[K, V]> {
-    return this.entries()[Symbol.iterator]();
+    return this.rawMap.entries();
   }
 }

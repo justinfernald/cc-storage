@@ -7,6 +7,7 @@ import { flexColumn, padding } from '../styles';
 import { ListViewItem } from './ListViewItem';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
+import { Wap } from 'utils';
 
 interface SystemListViewModelProps {
   system: StorageSystem;
@@ -20,7 +21,7 @@ class SystemListViewModel extends BaseViewModel<SystemListViewModelProps> {
   }
 
   get reducedItems() {
-    const itemStacksWithStorageMap = new Map<
+    const itemStacksWithStorageMap = new Wap<
       string,
       { storageName: string; itemStack: ItemStack }[]
     >();
@@ -42,11 +43,11 @@ class SystemListViewModel extends BaseViewModel<SystemListViewModelProps> {
       }
     }
 
-    const reducedItemsMap = new Map<string, Map<string, ReducedItemStack>>();
+    const reducedItemsMap = new Wap<string, Wap<string, ReducedItemStack>>();
 
     for (const [name, itemStacksWithStorage] of itemStacksWithStorageMap) {
       // group them by nbtHash
-      const reducedItems = new Map<string, ReducedItemStack>();
+      const reducedItems = new Wap<string, ReducedItemStack>();
       for (const itemStackWithStorage of itemStacksWithStorage) {
         if (!reducedItems.has(itemStackWithStorage.itemStack.nbtHash)) {
           reducedItems.set(itemStackWithStorage.itemStack.nbtHash, {
@@ -75,7 +76,7 @@ class SystemListViewModel extends BaseViewModel<SystemListViewModelProps> {
       reducedItemsMap.set(name, reducedItems);
     }
 
-    return Array.from(reducedItemsMap.values());
+    return reducedItemsMap.values();
   }
 }
 
@@ -95,10 +96,7 @@ export const SystemListView = observer((props: SystemListViewProps) => {
     <div css={[flexColumn, { gap: 5 }, padding('md')]}>
       {reducedItems
         .flatMap((reducedItemStack) =>
-          filterReducedItemStackCollection(
-            Array.from(reducedItemStack.values()),
-            filterInfo,
-          ),
+          filterReducedItemStackCollection(reducedItemStack.values(), filterInfo),
         )
         .toSorted(
           (itemStackA, itemStackB) =>

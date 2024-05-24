@@ -17,6 +17,7 @@ import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel'
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
 import { appModel } from '../App';
 import { action } from 'mobx';
+import { Wap } from 'utils';
 
 interface ItemDeliveryViewModelProps {
   storageSystem: StorageSystem;
@@ -88,14 +89,14 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
     );
   }
 
-  get otherGroupedStorageSlots(): Map<string, GroupedStorageSlots> | null {
+  get otherGroupedStorageSlots(): Wap<string, GroupedStorageSlots> | null {
     // group by storageName
     if (!this.otherStorageSlots) {
       return null;
     }
 
     /** key is storageName */
-    const groupedStorageSlots = new Map<string, GroupedStorageSlots>();
+    const groupedStorageSlots = new Wap<string, GroupedStorageSlots>();
 
     for (const slot of this.otherStorageSlots) {
       const storageSlotInfo = groupedStorageSlots.get(slot.storageName);
@@ -224,7 +225,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
       return { systemName: this.systemName, moves: [] };
     }
 
-    const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
+    const otherGroupedStorageSlots = this.otherGroupedStorageSlots.values();
 
     otherGroupedStorageSlots.sort((a, b) => b.count - a.count);
 
@@ -262,7 +263,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
       return { systemName: this.systemName, moves: [] };
     }
 
-    const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
+    const otherGroupedStorageSlots = this.otherGroupedStorageSlots.values();
 
     otherGroupedStorageSlots.sort((a, b) => a.count - b.count);
 
@@ -300,7 +301,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
       return { systemName: this.systemName, moves: [] };
     }
 
-    const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
+    const otherGroupedStorageSlots = this.otherGroupedStorageSlots.values();
 
     const totalItemCount = otherGroupedStorageSlots.reduce((acc, s) => acc + s.count, 0);
 
@@ -344,7 +345,7 @@ class ItemDeliveryViewModel extends BaseViewModel<ItemDeliveryViewModelProps> {
 
     const moves: ItemMovementPackage = { systemName: this.systemName, moves: [] };
 
-    const otherGroupedStorageSlots = Array.from(this.otherGroupedStorageSlots.values());
+    const otherGroupedStorageSlots = this.otherGroupedStorageSlots.values();
 
     const copiedStorages: GroupedStorageSlots[] = otherGroupedStorageSlots.map(
       (storage) => ({
@@ -431,14 +432,14 @@ interface SummarizedMove {
 
 function summarizeMoves(moves: ItemMovementPackage): SummarizedMove[] {
   // group storages and sum up their counts
-  const storageCounts = new Map<string, number>();
+  const storageCounts = new Wap<string, number>();
 
   for (const move of moves.moves) {
     const count = storageCounts.get(move.from) ?? 0;
     storageCounts.set(move.from, count + (move.quantity ?? 0));
   }
 
-  return Array.from(storageCounts.entries()).map(([storageName, count]) => ({
+  return storageCounts.entries(([storageName, count]) => ({
     storageName,
     count,
   }));

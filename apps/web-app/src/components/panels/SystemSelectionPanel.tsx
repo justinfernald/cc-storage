@@ -40,7 +40,7 @@ export const SystemSelectionPanel = observer((props: SystemSelectionPanelInfo) =
     return <div>Loading...</div>;
   }
 
-  const storageSystemList = Array.from(storageSystems.values());
+  const storageSystemList = storageSystems.values();
 
   return (
     <div css={[flexCenterHorizontal, { overflow: 'auto' }]}>

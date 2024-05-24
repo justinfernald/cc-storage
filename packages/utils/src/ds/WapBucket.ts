@@ -10,13 +10,13 @@ export class WapBucket<K, V> {
     keyFn: (item: T) => K,
   ): WapBucket<K, T> {
     const map = new Map<K, T[]>();
-    array.forEach((item) => {
+    for (const item of array) {
       const key = keyFn(item);
       if (!map.has(key)) {
         map.set(key, []);
       }
       map.get(key)!.push(item);
-    });
+    }
     return new WapBucket(Array.from(map.entries()));
   }
 
@@ -26,13 +26,13 @@ export class WapBucket<K, V> {
     valueFn: (item: T, key: K) => V,
   ): WapBucket<K, V> {
     const map = new Map<K, V[]>();
-    array.forEach((item) => {
+    for (const item of array) {
       const key = keyFn(item);
       if (!map.has(key)) {
         map.set(key, []);
       }
       map.get(key)!.push(valueFn(item, key));
-    });
+    }
     return new WapBucket(Array.from(map.entries()));
   }
 
@@ -67,7 +67,6 @@ export class WapBucket<K, V> {
         this.set(key, valuesOrValueFactory);
       }
     }
-
     return this.get(key);
   }
 
@@ -107,24 +106,24 @@ export class WapBucket<K, V> {
     return this.size === 0;
   }
 
-  keys(): K[] {
-    return Array.from(this.rawMap.keys());
+  keys<R = K[]>(mapfn?: (v: K, i: number) => R): R[] {
+    return Array.from(this.rawMap.keys(), mapfn as any);
   }
 
-  values(): V[][] {
-    return Array.from(this.rawMap.values());
+  values<R = V[]>(mapfn?: (v: V, i: number) => R): R[] {
+    return Array.from(this.rawMap.values(), mapfn as any);
   }
 
-  entries(): [K, V[]][] {
-    return Array.from(this.rawMap.entries());
+  entries<R = [K, V[]]>(mapfn?: (v: [K, V], i: number) => R): R[] {
+    return Array.from(this.rawMap.entries(), mapfn as any);
   }
 
   mapValues<NV>(f: (values: V[], key: K) => NV[]): WapBucket<K, NV> {
     const newMap = new WapBucket<K, NV>();
 
-    this.forEach((values, key) => {
+    for (const [key, values] of this.rawMap.entries()) {
       newMap.set(key, f(values, key));
-    });
+    }
 
     return newMap;
   }
@@ -132,9 +131,9 @@ export class WapBucket<K, V> {
   mapKeys<NK>(f: (key: K, values: V[]) => NK): WapBucket<NK, V> {
     const newMap = new WapBucket<NK, V>();
 
-    this.forEach((values, key) => {
+    for (const [key, values] of this.rawMap.entries()) {
       newMap.set(f(key, values), values);
-    });
+    }
 
     return newMap;
   }
@@ -142,10 +141,10 @@ export class WapBucket<K, V> {
   mapKeysAndValues<NK, NV>(f: (key: K, values: V[]) => [NK, NV[]]): WapBucket<NK, NV> {
     const newMap = new WapBucket<NK, NV>();
 
-    this.forEach((values, key) => {
+    for (const [key, values] of this.rawMap.entries()) {
       const [newKey, newValues] = f(key, values);
       newMap.set(newKey, newValues);
-    });
+    }
 
     return newMap;
   }
@@ -154,35 +153,37 @@ export class WapBucket<K, V> {
     callbackfn: (values: V[], key: K, map: WapBucket<K, V>) => void,
     thisArg?: unknown,
   ): void {
-    this.rawMap.forEach((values, key) => callbackfn.call(thisArg, values, key, this));
+    for (const [key, values] of this.rawMap.entries()) {
+      callbackfn.call(thisArg, values, key, this);
+    }
   }
 
   merge(other: WapBucket<K, V>): this {
-    other.forEach((values, key) => {
+    for (const [key, values] of other.rawMap.entries()) {
       if (this.rawMap.has(key)) {
         this.rawMap.get(key)!.push(...values);
       } else {
         this.set(key, values);
       }
-    });
+    }
     return this;
   }
 
   filter(predicate: (values: V[], key: K) => boolean): WapBucket<K, V> {
     const newMap = new WapBucket<K, V>();
-    this.forEach((values, key) => {
+    for (const [key, values] of this.rawMap.entries()) {
       if (predicate(values, key)) {
         newMap.set(key, values);
       }
-    });
+    }
     return newMap;
   }
 
   reduce<T>(reducer: (accumulator: T, values: V[], key: K) => T, initialValue: T): T {
     let accumulator = initialValue;
-    this.forEach((values, key) => {
+    for (const [key, values] of this.rawMap.entries()) {
       accumulator = reducer(accumulator, values, key);
-    });
+    }
     return accumulator;
   }
 
@@ -192,16 +193,16 @@ export class WapBucket<K, V> {
 
   toRecord(): Record<string | number | symbol, V[]> {
     const record = {} as Record<string | number | symbol, V[]>;
-    this.rawMap.forEach((values, key) => {
+    for (const [key, values] of this.rawMap.entries()) {
       if (typeof key !== 'string' && typeof key !== 'number' && typeof key !== 'symbol') {
         throw new Error(`Key [${key}] is not a valid Record key type`);
       }
       record[key as string | number | symbol] = values;
-    });
+    }
     return record;
   }
 
   [Symbol.iterator](): IterableIterator<[K, V[]]> {
-    return this.entries()[Symbol.iterator]();
+    return this.rawMap.entries();
   }
 }

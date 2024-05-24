@@ -9,6 +9,7 @@ import {
 } from 'types';
 import { APIService } from './APIService';
 import { WSService } from './WSService';
+import { Wap } from 'utils';
 
 export class HistoryModel {
   lastStorageDestination?: string;
@@ -23,14 +24,13 @@ export class AppModel {
   wsService = new WSService(wsUrl);
   historyModel = new HistoryModel();
 
-  storageSystems = new Map<string, StorageSystem>();
+  storageSystems = new Wap<string, StorageSystem>();
 
-  inventoryInfoMap = new Map<string, InventoryInfo>();
-  storageInfoMap = new Map<string, StorageInfo>();
+  inventoryInfoMap = new Wap<string, InventoryInfo>();
+  storageInfoMap = new Wap<string, StorageInfo>();
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
-    ``;
 
     this.setupAutoUpdate();
     this.setupInventoryInfoMap();
@@ -42,12 +42,12 @@ export class AppModel {
     return disposer;
   }
 
-  setupInventoryInfoMap() {
-    this.apiService.getInventoryInfoCollection().then((data) => {
-      for (const info of data) {
-        this.inventoryInfoMap.set(info.name, info);
-      }
-    });
+  async setupInventoryInfoMap() {
+    const data = await this.apiService.getInventoryInfoCollection();
+
+    for (const info of data) {
+      this.inventoryInfoMap.set(info.name, info);
+    }
   }
 
   getInventoryInfo(name: string) {
@@ -98,7 +98,7 @@ export class AppModel {
     const systems = await this.apiService.getStorageSystemCollection();
 
     if (!this.storageSystems) {
-      this.storageSystems = new Map();
+      this.storageSystems = new Wap();
     }
 
     for (const system of systems) {

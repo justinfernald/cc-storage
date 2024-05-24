@@ -27,6 +27,7 @@ import { sleep } from './utils';
 import { db } from './database/database';
 import { storageTags, storages, tags, tags as tagsTable } from './database/schema';
 import { eq } from 'drizzle-orm';
+import { Wap } from 'utils';
 
 const appWs = expressWs(express());
 const app = appWs.app;
@@ -46,7 +47,7 @@ app.use((_req, res, next) => {
   next();
 });
 
-const connections: Map<string, { ws: ws; connectionData: ConnectionData }> = new Map();
+const connections = new Wap<string, { ws: ws; connectionData: ConnectionData }>();
 
 app.ws('/ws', (ws) => {
   let name: string | null = null;
@@ -176,9 +177,7 @@ app.ws('/ws', (ws) => {
 });
 
 function updateClients(storageSystemUpdate: StorageSystemUpdate) {
-  const connectionsData = Array.from(connections.values()).map(
-    (connection) => connection.connectionData,
-  );
+  const connectionsData = connections.values((connection) => connection.connectionData);
 
   const filteredConnections = connectionsData.filter(
     (connectionData) => connectionData.type === ConnectionType.WEB_APP,
@@ -204,9 +203,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.get('/connectedComputers', (req: Request, res: Response) => {
   // send back the number of connected clients
-  const connectionsData = Array.from(connections.values()).map(
-    (connection) => connection.connectionData,
-  );
+  const connectionsData = connections.values((connection) => connection.connectionData);
 
   const filteredConnections = connectionsData.filter(
     (connectionData) => connectionData.type === ConnectionType.COMPUTER,
@@ -242,9 +239,7 @@ app.get('/storageSystems/:name', async (req: Request, res: Response) => {
 });
 
 function fetchUpdate() {
-  const connectionsData = Array.from(connections.values()).map(
-    (connection) => connection.connectionData,
-  );
+  const connectionsData = connections.values((connection) => connection.connectionData);
 
   const filteredConnections = connectionsData.filter(
     (connectionData) => connectionData.type === ConnectionType.WEB_APP,
@@ -272,9 +267,7 @@ app.get('/fetchUpdate', async (req: Request, res: Response) => {
 });
 
 function moveItems(itemMoves: ItemMovementPackage) {
-  const connectionsData = Array.from(connections.values()).map(
-    (connection) => connection.connectionData,
-  );
+  const connectionsData = connections.values((connection) => connection.connectionData);
 
   const computer = connectionsData.find(
     (connectionData) =>
