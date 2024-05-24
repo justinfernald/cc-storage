@@ -1,3 +1,5 @@
+import { makeAutoObservable } from 'mobx';
+
 export class WapBucket<K, V> {
   rawMap: Map<K, V[]>;
 
@@ -33,11 +35,13 @@ export class WapBucket<K, V> {
       }
       map.get(key)!.push(valueFn(item, key));
     }
-    return new WapBucket(Array.from(map.entries()));
+    return new WapBucket(map.entries());
   }
 
-  constructor(entries: [K, V[]][] | null = null) {
+  constructor(entries: IterableIterator<[K, V[]]> | [K, V[]][] | null = null) {
     this.rawMap = new Map(entries);
+
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   set(key: K, values: V[]): this {
@@ -110,11 +114,11 @@ export class WapBucket<K, V> {
     return Array.from(this.rawMap.keys(), mapfn as any);
   }
 
-  values<R = V[]>(mapfn?: (v: V, i: number) => R): R[] {
+  values<R = V[]>(mapfn?: (v: V[], i: number) => R): R[] {
     return Array.from(this.rawMap.values(), mapfn as any);
   }
 
-  entries<R = [K, V[]]>(mapfn?: (v: [K, V], i: number) => R): R[] {
+  entries<R = [K, V[]]>(mapfn?: (v: [K, V[]], i: number) => R): R[] {
     return Array.from(this.rawMap.entries(), mapfn as any);
   }
 

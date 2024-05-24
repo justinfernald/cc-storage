@@ -1,11 +1,69 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "900efcbf-1eff-4aa0-9c02-31fad7ff17f9",
+  "id": "5dbd5965-7ff3-41a9-be81-9b5abe939663",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
-    "users": {
-      "name": "users",
+    "storage_tags": {
+      "name": "storage_tags",
+      "columns": {
+        "storage_id": {
+          "name": "storage_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "tag_id": {
+          "name": "tag_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "storage_tags_storage_id_storages_id_fk": {
+          "name": "storage_tags_storage_id_storages_id_fk",
+          "tableFrom": "storage_tags",
+          "tableTo": "storages",
+          "columnsFrom": [
+            "storage_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "storage_tags_tag_id_tags_id_fk": {
+          "name": "storage_tags_tag_id_tags_id_fk",
+          "tableFrom": "storage_tags",
+          "tableTo": "tags",
+          "columnsFrom": [
+            "tag_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "storage_tags_storage_id_tag_id_pk": {
+          "columns": [
+            "storage_id",
+            "tag_id"
+          ],
+          "name": "storage_tags_storage_id_tag_id_pk"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "storages": {
+      "name": "storages",
       "columns": {
         "id": {
           "name": "id",
@@ -65,8 +123,39 @@
         }
       },
       "indexes": {
-        "users_name_unique": {
-          "name": "users_name_unique",
+        "storages_name_unique": {
+          "name": "storages_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "tags": {
+      "name": "tags",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "tags_name_unique": {
+          "name": "tags_name_unique",
           "columns": [
             "name"
           ],

@@ -4,11 +4,11 @@ import { ItemStack, StorageInfo, StorageSystem } from 'types';
 import { FilterInfo } from '../interfaces/item-filter-types';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
-import { ReducedItemStack } from '../interfaces/extra-types';
+import { ReducedItemStack, StorageSlotInfo } from '../interfaces/extra-types';
 import { InventoryViewItem } from './InventoryViewItem';
 import { flexColumn, padding } from '../styles';
 import { toJS } from 'mobx';
-import { Wap } from 'utils';
+import { Wap, WapBucket } from 'utils';
 
 interface SystemInventoryViewModelProps {
   system: StorageSystem;
@@ -25,56 +25,41 @@ class SystemInventoryViewModel extends BaseViewModel<SystemInventoryViewModelPro
     makeSimpleAutoObservable(this, {}, { autoBind: true });
   }
 
-  get reducedStorage() {
-    const storageMap = new Wap<string, ReducedStorageInfo>();
+  get reducedStorageList() {
+    const storageMap = this.props.system.storages.map((storage) => {
+      const reducedItemStacksMap = Wap.fromReduce<ItemStack, string, ReducedItemStack>(
+        storage.itemStacks,
+        (itemStack) => `${itemStack.name}${itemStack.nbtHash}`,
+        (acc, itemStack) => ({
+          ...acc,
+          count: acc.count + itemStack.count,
+          storageSlotInfo: [
+            ...acc.storageSlotInfo,
+            {
+              storageName: storage.name,
+              slot: itemStack.slot,
+              count: itemStack.count,
+            },
+          ],
+        }),
+        (itemStack) => ({
+          name: itemStack.name,
+          itemDetails: itemStack.itemDetails,
+          nbtHash: itemStack.nbtHash,
+          count: 0,
+          storageSlotInfo: [],
+        }),
+      );
 
-    // take item stacks in storage then sum up the count for matching name and nbtHash
-
-    for (const storage of this.props.system.storages) {
-      if (!storage.itemStacks) {
-        continue;
-      }
-
-      const reducedItemStacks = new Wap<string, ReducedItemStack>();
-
-      for (const itemStack of storage.itemStacks) {
-        const key = `${itemStack.name}${itemStack.nbtHash}`;
-        const reducedItemStack = reducedItemStacks.get(key);
-
-        if (!reducedItemStack) {
-          reducedItemStacks.set(key, {
-            ...itemStack,
-            storageSlotInfo: [
-              {
-                storageName: storage.name,
-                slot: itemStack.slot,
-                count: itemStack.count,
-              },
-            ],
-          });
-        } else {
-          reducedItemStack.count += itemStack.count;
-          reducedItemStack.storageSlotInfo.push({
-            storageName: storage.name,
-            slot: itemStack.slot,
-            count: itemStack.count,
-          });
-        }
-      }
-
-      storageMap.set(storage.name, {
+      return {
         ...storage,
-        reducedItemStacks: reducedItemStacks.values(),
-      });
-    }
+        reducedItemStacks: reducedItemStacksMap.values(),
+      };
+    });
 
     console.log(toJS(storageMap));
 
     return storageMap;
-  }
-
-  get reducedStorageList() {
-    return this.reducedStorage.values();
   }
 }
 

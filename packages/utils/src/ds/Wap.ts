@@ -1,5 +1,31 @@
+import { makeAutoObservable } from 'mobx';
+
 export class Wap<K, V> {
   rawMap: Map<K, V>;
+
+  static fromReduce<T, K extends string | number | symbol, V>(
+    array: T[],
+    keyFn: (item: T) => K,
+    reduceFn: (accumulator: V, item: T, key: K) => V,
+    initialValueOrInitialValueFn: V | ((item: T, key: K) => V),
+  ): Wap<K, V> {
+    const map = new Map<K, V>();
+    for (const item of array) {
+      const key = keyFn(item);
+      if (!map.has(key)) {
+        if (typeof initialValueOrInitialValueFn === 'function') {
+          map.set(
+            key,
+            (initialValueOrInitialValueFn as (item: T, key: K) => V)(item, key),
+          );
+        } else {
+          map.set(key, initialValueOrInitialValueFn);
+        }
+      }
+      map.set(key, reduceFn(map.get(key)!, item, key));
+    }
+    return new Wap(map.entries());
+  }
 
   static fromRecord<K extends string | number | symbol, V>(
     record: Record<K, V>,
@@ -27,6 +53,8 @@ export class Wap<K, V> {
 
   constructor(entries: IterableIterator<[K, V]> | [K, V][] | null = null) {
     this.rawMap = new Map(entries);
+
+    makeAutoObservable(this, {}, { autoBind: true });
   }
 
   set(key: K, value: V): this {
