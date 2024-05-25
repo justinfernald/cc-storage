@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx';
+import { Wap } from './Wap';
 
 export class WapBucket<K, V> {
   rawMap: Map<K, V[]>;
@@ -124,6 +125,16 @@ export class WapBucket<K, V> {
 
   mapValues<NV>(f: (values: V[], key: K) => NV[]): WapBucket<K, NV> {
     const newMap = new WapBucket<K, NV>();
+
+    for (const [key, values] of this.rawMap.entries()) {
+      newMap.set(key, f(values, key));
+    }
+
+    return newMap;
+  }
+
+  mapValuesToWap<NV>(f: (values: V[], key: K) => NV): Wap<K, NV> {
+    const newMap = new Wap<K, NV>();
 
     for (const [key, values] of this.rawMap.entries()) {
       newMap.set(key, f(values, key));

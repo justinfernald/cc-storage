@@ -7,7 +7,7 @@ import { flexColumn, padding } from '../styles';
 import { ListViewItem } from './ListViewItem';
 import { BaseViewModel, useViewModelConstructor } from '../utils/mobx/ViewModel';
 import { makeSimpleAutoObservable } from '../utils/mobx/mobx';
-import { Wap } from 'utils';
+import { Wap, WapBucket } from 'utils';
 
 interface SystemListViewModelProps {
   system: StorageSystem;
@@ -21,60 +21,53 @@ class SystemListViewModel extends BaseViewModel<SystemListViewModelProps> {
   }
 
   get reducedItems() {
-    const itemStacksWithStorageMap = new Wap<
+    const itemStacksWithStorageMap = new WapBucket<
       string,
-      { storageName: string; itemStack: ItemStack }[]
+      { storageName: string; itemStack: ItemStack }
     >();
 
     for (const storage of this.props.system.storages) {
-      if (!storage.itemStacks) {
-        continue;
-      }
-
       for (const itemStack of storage.itemStacks) {
-        if (!itemStacksWithStorageMap.has(itemStack.name)) {
-          itemStacksWithStorageMap.set(itemStack.name, []);
-        }
-
-        itemStacksWithStorageMap.get(itemStack.name)?.push({
+        itemStacksWithStorageMap.addValue(itemStack.name, {
           storageName: storage.name,
           itemStack,
         });
       }
     }
 
-    const reducedItemsMap = new Wap<string, Wap<string, ReducedItemStack>>();
-
-    for (const [name, itemStacksWithStorage] of itemStacksWithStorageMap) {
-      // group them by nbtHash
-      const reducedItems = new Wap<string, ReducedItemStack>();
-      for (const itemStackWithStorage of itemStacksWithStorage) {
-        if (!reducedItems.has(itemStackWithStorage.itemStack.nbtHash)) {
-          reducedItems.set(itemStackWithStorage.itemStack.nbtHash, {
-            ...itemStackWithStorage.itemStack,
+    const reducedItemsMap = itemStacksWithStorageMap.mapValuesToWap(
+      (itemStacksWithStorage) =>
+        Wap.fromReduce<
+          {
+            storageName: string;
+            itemStack: ItemStack;
+          },
+          string,
+          ReducedItemStack
+        >(
+          itemStacksWithStorage,
+          (itemStackWithStorage) => itemStackWithStorage.itemStack.nbtHash,
+          (reducedItemStack, itemStackWithStorage) => ({
+            ...reducedItemStack,
+            count: reducedItemStack.count + itemStackWithStorage.itemStack.count,
             storageSlotInfo: [
+              ...reducedItemStack.storageSlotInfo,
               {
                 storageName: itemStackWithStorage.storageName,
                 slot: itemStackWithStorage.itemStack.slot,
                 count: itemStackWithStorage.itemStack.count,
               },
             ],
-          });
-        } else {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          reducedItems.get(itemStackWithStorage.itemStack.nbtHash)!.count +=
-            itemStackWithStorage.itemStack.count;
-
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          reducedItems.get(itemStackWithStorage.itemStack.nbtHash)!.storageSlotInfo.push({
-            storageName: itemStackWithStorage.storageName,
-            slot: itemStackWithStorage.itemStack.slot,
-            count: itemStackWithStorage.itemStack.count,
-          });
-        }
-      }
-      reducedItemsMap.set(name, reducedItems);
-    }
+          }),
+          (itemStackWithStorage) => ({
+            name: itemStackWithStorage.itemStack.name,
+            itemDetails: itemStackWithStorage.itemStack.itemDetails,
+            nbtHash: itemStackWithStorage.itemStack.nbtHash,
+            count: 0,
+            storageSlotInfo: [],
+          }),
+        ),
+    );
 
     return reducedItemsMap.values();
   }
