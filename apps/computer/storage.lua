@@ -1,6 +1,26 @@
 -- Get name of the computer on network as string
 local computerName = os.getComputerLabel() or tostring(os.getComputerID())
 
+
+local function randomString(length)
+  local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  local randomString = ""
+  for i = 1, length do
+    local randomIndex = math.random(1, #chars)
+    randomString = randomString .. chars:sub(randomIndex, randomIndex)
+  end
+  return randomString
+end
+
+-- Function that splits string into chunks
+local function splitStringIntoChunks(str, chunkSize)
+  local chunks = {}
+  for i = 1, #str, chunkSize do
+    table.insert(chunks, str:sub(i, i + chunkSize - 1))
+  end
+  return chunks
+end
+
 -- Define the ItemDetails and other structures
 local function getItemDetails(item)
   return {
@@ -45,11 +65,14 @@ end
 
 -- Gather inventory data and format as JSON
 local function gatherInventoryData()
+  print("getting all inventories")
   local storages = findAllInventories()
   local inventoryUpdate = {
     name = computerName,
     storages = storages
   }
+
+  print("gathered")
 
   return textutils.serializeJSON(inventoryUpdate)
 end
@@ -58,7 +81,9 @@ local previousInventoryData = nil
 
 -- Send JSON data over WebSocket
 local function sendInventoryUpdate(ws)
+  print("Getting inv data")
   local jsonString = gatherInventoryData()
+  print("Got inv data")
 
   if jsonString == previousInventoryData then
     print("No changes in inventory data.")
@@ -68,6 +93,8 @@ local function sendInventoryUpdate(ws)
   previousInventoryData = jsonString
 
   local chunkSize = 25000 -- 25KB
+
+
 
   local chunks = splitStringIntoChunks(jsonString, chunkSize)
 
@@ -88,25 +115,6 @@ local function sendInventoryUpdate(ws)
   end
 
   -- ws.send(jsonString)
-end
-
-local function randomString(length)
-  local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  local randomString = ""
-  for i = 1, length do
-    local randomIndex = math.random(1, #chars)
-    randomString = randomString .. chars:sub(randomIndex, randomIndex)
-  end
-  return randomString
-end
-
--- Function that splits string into chunks
-local function splitStringIntoChunks(str, chunkSize)
-  local chunks = {}
-  for i = 1, #str, chunkSize do
-    table.insert(chunks, str:sub(i, i + chunkSize - 1))
-  end
-  return chunks
 end
 
 -- Send a ping message to the server
