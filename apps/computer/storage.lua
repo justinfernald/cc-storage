@@ -51,15 +51,7 @@ local function gatherInventoryData()
     storages = storages
   }
 
-  local message = {
-    type = "STORAGE_SYSTEM_UPDATE",
-    data = {
-      updateTime = os.time(),
-      storageSystem = inventoryUpdate
-    }
-  }
-
-  return textutils.serializeJSON(message)
+  return textutils.serializeJSON(inventoryUpdate)
 end
 
 local previousInventoryData = nil
@@ -75,7 +67,46 @@ local function sendInventoryUpdate(ws)
 
   previousInventoryData = jsonString
 
-  ws.send(jsonString)
+  local chunkSize = 25000 -- 25KB
+
+  local chunks = splitStringIntoChunks(jsonString, chunkSize)
+
+  local transferId = randomString(10)
+
+  for i, chunk in ipairs(chunks) do
+    local message = {
+      type = "STORAGE_SYSTEM_UPDATE",
+      data = {
+        partialStorageSystemMessage = chunk,
+        updateTime = os.time(),
+        transferId = transferId,
+        chunkNumber = i,
+        totalChunks = #chunks
+      }
+    }
+    ws.send(textutils.serializeJSON(message))
+  end
+
+  -- ws.send(jsonString)
+end
+
+local function randomString(length)
+  local chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  local randomString = ""
+  for i = 1, length do
+    local randomIndex = math.random(1, #chars)
+    randomString = randomString .. chars:sub(randomIndex, randomIndex)
+  end
+  return randomString
+end
+
+-- Function that splits string into chunks
+local function splitStringIntoChunks(str, chunkSize)
+  local chunks = {}
+  for i = 1, #str, chunkSize do
+    table.insert(chunks, str:sub(i, i + chunkSize - 1))
+  end
+  return chunks
 end
 
 -- Send a ping message to the server

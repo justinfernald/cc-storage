@@ -22,12 +22,13 @@ import {
   MessageTypeClientToServer,
   InventoryInfo,
   Tag,
+  PartialStorageSystemUpdate,
 } from 'types';
 import { sleep } from './utils';
 import { db } from './database/database';
 import { storageTags, storages, tags as tagsTable } from './database/schema';
 import { eq } from 'drizzle-orm';
-import { Wap } from 'utils';
+import { Wap, WapBucket } from 'utils';
 
 const appWs = expressWs(express());
 const app = appWs.app;
@@ -48,6 +49,11 @@ app.use((_req, res, next) => {
 });
 
 const connections = new Wap<string, { ws: ws; connectionData: ConnectionData }>();
+
+const partialStorageSystemMessageMap = new WapBucket<
+  string,
+  PartialStorageSystemUpdate
+>();
 
 app.ws('/ws', (ws) => {
   let name: string | null = null;
@@ -106,14 +112,31 @@ app.ws('/ws', (ws) => {
 
       if (message.type === MessageTypeClientToServer.STORAGE_SYSTEM_UPDATE) {
         const data = message.data;
-        const systemName = data.storageSystem.name;
+
+        partialStorageSystemMessageMap.addValue(data.transferId, data);
+
+        if (data.chunkNumber !== data.totalChunks) {
+          return;
+        }
+
+        const partialMessages = partialStorageSystemMessageMap.get(data.transferId);
+
+        partialStorageSystemMessageMap.delete(data.transferId);
+
+        const storageSystemUpdate = partialMessages
+          .map((message) => message.partialStorageSystemMessage)
+          .join('');
+
+        const parsedData = JSON.parse(storageSystemUpdate) as StorageSystem;
+
+        const systemName = parsedData.name;
 
         // keep only alphanumeric characters
         const hashedSystemName = systemName.replace(/[^a-zA-Z0-9]/g, '');
 
         const fixedData: StorageSystem = {
           name: systemName,
-          storages: data.storageSystem.storages.map((storage) => ({
+          storages: parsedData.storages.map((storage) => ({
             name: storage.name,
             metaData: storage.metaData,
             itemStacks: Array.isArray(storage.itemStacks)

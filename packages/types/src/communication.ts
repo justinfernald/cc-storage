@@ -77,6 +77,22 @@ export interface Enchantment {
 }
 
 /** Represents a storage system update */
+export interface PartialStorageSystemUpdate {
+  /** A partial Json string of StorageSystemUpdate["storageSystem"] */
+  partialStorageSystemMessage: string;
+
+  updateTime: number;
+
+  /** unique id that will be persistent across all chunks sent */
+  transferId: string;
+
+  /** Starts at 1 and goes to totalChunks */
+  chunkNumber: number;
+  /** Total number of chunks */
+  totalChunks: number;
+}
+
+/** Represents a storage system update */
 export interface StorageSystemUpdate {
   storageSystem: StorageSystem;
   updateTime: number;
@@ -141,9 +157,13 @@ export interface MessageC2SConnection extends MessageC2SStructure {
   data: ConnectionData;
 }
 
+// export interface MessageC2SStorageSystemUpdate extends MessageC2SStructure {
+//   type: MessageTypeClientToServer.STORAGE_SYSTEM_UPDATE;
+//   data: StorageSystemUpdate;
+// }
 export interface MessageC2SStorageSystemUpdate extends MessageC2SStructure {
   type: MessageTypeClientToServer.STORAGE_SYSTEM_UPDATE;
-  data: StorageSystemUpdate;
+  data: PartialStorageSystemUpdate;
 }
 
 export interface MessageS2CStorageSystemUpdate extends MessageS2CStructure {
