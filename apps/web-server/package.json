@@ -21,13 +21,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/ws": "^8.5.10",
     "better-sqlite3": "^10.0.0",
     "drizzle-orm": "^0.30.10",
     "express": "^4.19.2",
     "express-ws": "^5.0.2",
+    "types": "workspace:*",
     "typescript": "^5.4.5",
     "utils": "workspace:*",
-    "types": "workspace:*"
+    "ws": "^8.17.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.10",

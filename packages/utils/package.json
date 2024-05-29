@@ -13,6 +13,9 @@
   "jest": {
     "preset": "jest-presets/jest/node"
   },
+  "dependencies": {
+    "mobx": "^6.6.2"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.22",
     "@types/node": "^18.11.9",
